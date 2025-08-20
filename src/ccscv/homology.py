@@ -41,34 +41,15 @@ class HomologyResult(BaseModel):
     generators_metadata: Dict[str, Any] = Field(..., description="Additional generator information")
 
 
-def smith_normal_form(A: np.ndarray) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[np.ndarray]]:
-    """
-    Compute the Smith normal form of a matrix A over the integers.
-    
-    The Smith normal form is a diagonal matrix S = U * A * V where:
-    - U and V are unimodular matrices (integer matrices with determinant ±1)
-    - S is diagonal with s_i | s_{i+1} for all i
-    
-    Args:
-        A: Integer matrix
-        
-    Returns:
-        Tuple (S, U, V) where S is the Smith normal form, U and V are transformation matrices
-        (U and V may be None for older SymPy versions)
-    """
+def smith_normal_form(A: np.ndarray):
     A = np.asarray(A, dtype=int)
     m, n = A.shape
     A_sym = Matrix(A.tolist())
-
-    # Handle empty shapes explicitly
     if m == 0 or n == 0:
         S = Matrix.zeros(m, n)
-        S_np = np.array(S.tolist(), dtype=int)
-        return S_np, None, None
-
+        return S, None, None
     if snf_func is not None:
         res = snf_func(A_sym)
-        # Normalize outputs across SymPy versions
         if isinstance(res, tuple):
             if len(res) == 3:
                 S, U, V = res
@@ -76,28 +57,28 @@ def smith_normal_form(A: np.ndarray) -> Tuple[np.ndarray, Optional[np.ndarray], 
                 S, = res
                 U = V = None
             else:
-                # Unexpected arity; treat as S only
                 S = res
                 U = V = None
         else:
-            # Some versions return just S
             S, U, V = res, None, None
-        
-        # Convert back to numpy arrays
-        S_np = np.array(S.tolist(), dtype=int)
-        U_np = np.array(U.tolist(), dtype=int) if U is not None else None
-        V_np = np.array(V.tolist(), dtype=int) if V is not None else None
-        return S_np, U_np, V_np
-
-    # Fallback: build S from invariant factors
+        return S, U, V
     inv = A_sym.invariant_factors()
     S = Matrix.zeros(m, n)
     for i, d in enumerate(inv):
         S[i, i] = d
-    # Convert to numpy and return
-    S_np = np.array(S.tolist(), dtype=int)
-    # No unimodular matrices available; return placeholders
-    return S_np, None, None
+    return S, None, None
+
+
+def rank_from_snf(S):
+    return sum(1 for i in range(min(S.rows, S.cols)) if S[i, i] != 0)
+
+
+def group_dim(group):
+    return 0 if group is None else len(group.basis)
+
+
+def zero_map(shape):
+    return np.zeros(shape, dtype=int)
 
 
 def kernel_rank(A: np.ndarray) -> int:
@@ -148,7 +129,7 @@ def image_rank(A: np.ndarray) -> int:
     return image_rank
 
 
-def torsion_invariants(S: np.ndarray) -> List[Tuple[int, int]]:
+def torsion_invariants(S) -> List[Tuple[int, int]]:
     """
     Extract torsion invariants from the diagonal of Smith normal form.
     
@@ -156,16 +137,22 @@ def torsion_invariants(S: np.ndarray) -> List[Tuple[int, int]]:
     They represent the finite cyclic factors in the homology group.
     
     Args:
-        S: Diagonal matrix from Smith normal form
+        S: Diagonal matrix from Smith normal form (SymPy Matrix or numpy array)
         
     Returns:
         List of (prime, power) tuples representing torsion factors
     """
-    if S.size == 0:
+    if hasattr(S, 'size') and S.size == 0:
+        return []
+    if hasattr(S, 'rows') and (S.rows == 0 or S.cols == 0):
         return []
     
     torsion_factors = []
-    diagonal = S.diagonal()
+    if hasattr(S, 'diagonal'):
+        diagonal = S.diagonal()
+    else:
+        # Handle SymPy Matrix
+        diagonal = [S[i, i] for i in range(min(S.rows, S.cols))]
     
     for d in diagonal:
         if d != 0 and abs(d) != 1:
@@ -236,34 +223,44 @@ class HomologyCalculator:
         if n in self._homology_result_cache:
             return self._homology_result_cache[n]
         
-        # Get differential operators
-        d_n = self.chain_complex.get_boundary_operator(n)
-        d_n_plus_1 = self.chain_complex.get_boundary_operator(n + 1)
+        # Get chain group dimensions
+        dim_Cn = group_dim(self.chain_complex.get_group(n))
+        dim_Cn_minus = group_dim(self.chain_complex.get_group(n - 1))
+        dim_Cn_plus = group_dim(self.chain_complex.get_group(n + 1))
         
-        # For H₀, compute as C₀ / im(d₁) (unreduced homology)
-        if n == 0:
-            # H₀ = C₀ / im(d₁) where C₀ is the chain group at dimension 0
-            C0_dim = self.chain_complex.get_rank(0)
-            # im(d₁) is the rank of the d₁ matrix
-            image_rank_d1 = image_rank(d_n_plus_1) if d_n_plus_1 is not None else 0
-            free_rank = C0_dim - image_rank_d1
-        else:
-            # For other dimensions: H_n = ker(d_n) / im(d_{n+1})
-            kernel_rank_n = kernel_rank(d_n) if d_n is not None else 0
-            image_rank_n_plus_1 = image_rank(d_n_plus_1) if d_n_plus_1 is not None else 0
-            free_rank = max(0, kernel_rank_n - image_rank_n_plus_1)
+        # d_n: C_n -> C_{n-1}, shape (dim_Cn_minus, dim_Cn)
+        d_n = self.chain_complex.get_boundary_operator(n)
+        if d_n is None:
+            d_n = zero_map((dim_Cn_minus, dim_Cn))
+        S_n, _, _ = smith_normal_form(d_n)
+        rank_dn = rank_from_snf(S_n)
+        
+        # Kernel rank of d_n is domain dim minus rank
+        kernel_rank = dim_Cn - rank_dn
+        
+        # d_{n+1}: C_{n+1} -> C_n, shape (dim_Cn, dim_Cn_plus)
+        d_nplus = self.chain_complex.get_boundary_operator(n + 1)
+        if d_nplus is None:
+            d_nplus = zero_map((dim_Cn, dim_Cn_plus))
+        S_np, _, _ = smith_normal_form(d_nplus)
+        rank_dnplus = rank_from_snf(S_np)
+        
+        # Free rank is kernel rank minus image rank
+        free_rank = kernel_rank - rank_dnplus
+        if free_rank < 0:
+            free_rank = 0  # safety
         
         # Compute torsion from the differential at dimension n
         torsion = []
-        if d_n is not None:
+        if d_n is not None and d_n.size > 0:
             S, _, _ = smith_normal_form(d_n)
             torsion = torsion_invariants(S)
         
         # Generate metadata
         generators_metadata = {
-            'kernel_rank': kernel_rank(d_n) if d_n is not None else 0,
-            'image_rank': image_rank(d_n_plus_1) if d_n_plus_1 is not None else 0,
-            'total_generators': self.chain_complex.get_rank(n),
+            'kernel_rank': kernel_rank,
+            'image_rank': rank_dnplus,
+            'total_generators': dim_Cn,
             'differential_shape': d_n.shape if d_n is not None else None
         }
         
