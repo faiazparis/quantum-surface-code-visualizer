@@ -330,7 +330,7 @@ Where:
 
 ## 🎯 **OUR MISSION**
 
-**We're building advanced mathematical models for everyone.** This document represents our target - the rigorous standards we're working toward. We have a solid foundation, but we need your help to reach these ambitious goals.
+**We're building mathematical models for everyone.** This document represents our target - the rigorous standards we're working toward. We have a solid foundation, but we need your help to reach these goals.
 
 **Current Status**: Working foundation with 25-30% compliance with target standards.
 

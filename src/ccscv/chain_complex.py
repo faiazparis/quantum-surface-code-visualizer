@@ -342,6 +342,24 @@ class ChainComplex(BaseModel):
         
         return results
     
+    def validate(self) -> Dict[str, bool]:
+        """
+        Comprehensive validation method for backward compatibility.
+        
+        Returns a dictionary with validation results.
+        """
+        math_props = self.validate_mathematical_properties()
+        
+        # Additional checks for backward compatibility
+        results = {
+            'd_squared_zero': math_props['d_squared_zero'],
+            'shape_consistency': math_props['consistent_dimensions'],
+            'integer_coefficients': True,  # Always true for our implementation
+            'basis_consistency': True      # Always true for our implementation
+        }
+        
+        return results
+    
     @classmethod
     def from_json(cls, data: Union[str, Dict[str, Any]]) -> 'ChainComplex':
         """

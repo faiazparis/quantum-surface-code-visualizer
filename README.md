@@ -291,8 +291,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Our Mission**: To build advanced mathematical models for everyone by providing a solid foundation for chain complex analysis and surface code research. We focus on mathematical rigor and invite the community to help expand capabilities.
+**Our Mission**: To build mathematical models for everyone by providing a solid foundation for chain complex analysis and surface code research. We focus on mathematical rigor and invite the community to help expand capabilities.
 
-**Current Status**: This is a working foundation with basic functionality. We actively develop advanced features and welcome contributions from researchers, developers, and enthusiasts to help us reach our ambitious goals.
+**Current Status**: This is a working foundation with basic functionality. We actively develop features and welcome contributions from researchers, developers, and enthusiasts to help us reach our goals.
 
 **Join Us**: Help us transform this from a promising foundation into a rigorous, validated tool that meets the high standards outlined in our [Mathematical Foundations](MATHEMATICAL_FOUNDATIONS.md).

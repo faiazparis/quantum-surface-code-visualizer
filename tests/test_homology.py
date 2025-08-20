@@ -153,19 +153,20 @@ class TestHomologyCalculator:
     def test_triangle_chain_complex(self):
         """Test homology of simple triangle chain complex."""
         # Create triangle chain complex
+        from ccscv.chain_complex import ChainGroup
+        
+        # Correct boundary maps for a filled triangle (v0,v1,v2 with edges e01,e12,e20 and face f012)
+        # ∂₁: edges → vertices (oriented edges: e01=v1-v0, e12=v2-v1, e20=v0-v2)
+        # ∂₂: face → edges (face boundary: e01+e12+e20)
+        
         chain_complex = ChainComplex(
-            name="Triangle",
-            grading=[0, 1, 2],
-            chains={
-                "0": {"basis": ["v1", "v2", "v3"], "ring": "Z"},
-                "1": {"basis": ["e1", "e2", "e3"], "ring": "Z"},
-                "2": {"basis": ["f1"], "ring": "Z"}
-            },
-            differentials={
-                "1": np.array([[1, 0, 0], [1, 1, 0], [0, 1, 1]], dtype=int),
-                "2": np.array([[1, 1, 1]], dtype=int)
-            },
-            metadata={"version": "1.0.0", "author": "Test"}
+            groups={
+                0: ChainGroup(dimension=0, generators=["v0", "v1", "v2"], boundary_matrix=np.array([], dtype=int)),
+                1: ChainGroup(dimension=1, generators=["e01", "e12", "e20"], 
+                             boundary_matrix=np.array([[-1, 0, 1], [1, -1, 0], [0, 1, -1]], dtype=int)),
+                2: ChainGroup(dimension=2, generators=["f012"], 
+                             boundary_matrix=np.array([[1], [1], [1]], dtype=int))
+            }
         )
         
         homology_calc = HomologyCalculator(chain_complex)
@@ -179,11 +180,11 @@ class TestHomologyCalculator:
         assert H0.free_rank == 1
         assert H0.torsion == []
         
-        # H1 should have rank 0 (no holes)
+        # H1 should have rank 0 (filled triangle - no holes, the 1-cycle is killed by the face)
         assert H1.free_rank == 0
         assert H1.torsion == []
         
-        # H2 should have rank 0 (no 2D holes)
+        # H2 should have rank 0 (no 2D holes in a single filled triangle)
         assert H2.free_rank == 0
         assert H2.torsion == []
     
@@ -194,21 +195,10 @@ class TestHomologyCalculator:
         from ccscv.chain_complex import ChainGroup
         
         chain_complex = ChainComplex(
-            name="Sphere S2 - Minimal Chain Complex",
-            grading=[0, 1, 2],
-            chains={
-                "0": ChainGroup(basis=["v"], ring="Z"),
-                "1": ChainGroup(basis=[], ring="Z"),
-                "2": ChainGroup(basis=["f"], ring="Z")
-            },
-            differentials={
-                "1": np.zeros((1, 0), dtype=int),  # Empty matrix: 1×0
-                "2": np.zeros((0, 1), dtype=int)   # Empty matrix: 0×1
-            },
-            metadata={
-                "version": "1.0.0", 
-                "author": "Test",
-                "note": "Abstract minimal chain complex model for S2 homology"
+            groups={
+                0: ChainGroup(dimension=0, generators=["v"], boundary_matrix=np.array([], dtype=int)),
+                1: ChainGroup(dimension=1, generators=[], boundary_matrix=np.zeros((1, 0), dtype=int)),
+                2: ChainGroup(dimension=2, generators=["f"], boundary_matrix=np.zeros((0, 1), dtype=int))
             }
         )
         
@@ -238,21 +228,10 @@ class TestHomologyCalculator:
         from ccscv.chain_complex import ChainGroup
         
         chain_complex = ChainComplex(
-            name="Torus T2 - Standard CW",
-            grading=[0, 1, 2],
-            chains={
-                "0": ChainGroup(basis=["v"], ring="Z"),
-                "1": ChainGroup(basis=["a", "b"], ring="Z"),
-                "2": ChainGroup(basis=["f"], ring="Z")
-            },
-            differentials={
-                "1": np.zeros((1, 2), dtype=int),  # ∂1 = 0: both loops start/end at v
-                "2": np.zeros((2, 1), dtype=int)   # ∂2 = 0: abelianization of aba^{-1}b^{-1}
-            },
-            metadata={
-                "version": "1.0.0", 
-                "author": "Test",
-                "note": "Standard CW structure for T2 with proper attaching map"
+            groups={
+                0: ChainGroup(dimension=0, generators=["v"], boundary_matrix=np.array([], dtype=int)),
+                1: ChainGroup(dimension=1, generators=["a", "b"], boundary_matrix=np.zeros((1, 2), dtype=int)),
+                2: ChainGroup(dimension=2, generators=["f"], boundary_matrix=np.zeros((2, 1), dtype=int))
             }
         )
         
@@ -281,18 +260,11 @@ class TestHomologyCalculator:
         from ccscv.chain_complex import ChainGroup
         
         invalid_data = {
-            "name": "Invalid Chain Complex",
-            "grading": [0, 1, 2],
-            "chains": {
-                "0": ChainGroup(basis=["v1", "v2"], ring="Z"),
-                "1": ChainGroup(basis=["e1"], ring="Z"),
-                "2": ChainGroup(basis=["f1"], ring="Z")
-            },
-            "differentials": {
-                "1": np.array([[1, 1]], dtype=int),  # Maps to both vertices
-                "2": np.array([[1]], dtype=int)       # Maps to edge
-            },
-            "metadata": {"version": "1.0.0", "author": "Test"}
+            "groups": {
+                0: ChainGroup(dimension=0, generators=["v1", "v2"], boundary_matrix=np.array([], dtype=int)),
+                1: ChainGroup(dimension=1, generators=["e1"], boundary_matrix=np.array([[1], [1]], dtype=int)),
+                2: ChainGroup(dimension=2, generators=["f1"], boundary_matrix=np.array([[1]], dtype=int))
+            }
         }
         
         # This should fail validation
@@ -305,17 +277,13 @@ class TestHomologyCalculator:
     def test_integer_coefficient_validation(self):
         """Test that non-integer coefficients are caught."""
         # Create chain complex with non-integer coefficients
+        from ccscv.chain_complex import ChainGroup
+        
         invalid_data = {
-            "name": "Invalid Chain Complex",
-            "grading": [0, 1],
-            "chains": {
-                "0": {"basis": ["v1", "v2"], "ring": "Z"},
-                "1": {"basis": ["e1"], "ring": "Z"}
-            },
-            "differentials": {
-                "1": np.array([[0.5, 1.0]], dtype=float)  # Non-integer coefficients
-            },
-            "metadata": {"version": "1.0.0", "author": "Test"}
+            "groups": {
+                0: ChainGroup(dimension=0, generators=["v1", "v2"], boundary_matrix=np.array([], dtype=int)),
+                1: ChainGroup(dimension=1, generators=["e1"], boundary_matrix=np.array([[0.5], [1.0]], dtype=float))
+            }
         }
         
         # This should fail validation
@@ -371,19 +339,14 @@ class TestIntegration:
     def test_complete_homology_computation(self):
         """Test complete homology computation workflow."""
         # Create a simple chain complex
+        from ccscv.chain_complex import ChainGroup
+        
         chain_complex = ChainComplex(
-            name="Test Complex",
-            grading=[0, 1, 2],
-            chains={
-                "0": {"basis": ["v1", "v2"], "ring": "Z"},
-                "1": {"basis": ["e1"], "ring": "Z"},
-                "2": {"basis": ["f1"], "ring": "Z"}
-            },
-            differentials={
-                "1": np.array([[1, 1]], dtype=int),
-                "2": np.array([[1]], dtype=int)
-            },
-            metadata={"version": "1.0.0", "author": "Test"}
+            groups={
+                0: ChainGroup(dimension=0, generators=["v1", "v2"], boundary_matrix=np.array([], dtype=int)),
+                1: ChainGroup(dimension=1, generators=["e1"], boundary_matrix=np.array([[1], [1]], dtype=int)),
+                2: ChainGroup(dimension=2, generators=["f1"], boundary_matrix=np.array([[0]], dtype=int))
+            }
         )
         
         # Validate the chain complex
@@ -405,24 +368,20 @@ class TestIntegration:
     
     def test_pretty_printing(self):
         """Test pretty printing functionality."""
+        from ccscv.chain_complex import ChainGroup
+        
         chain_complex = ChainComplex(
-            name="Test Complex",
-            grading=[0, 1],
-            chains={
-                "0": {"basis": ["v1", "v2"], "ring": "Z"},
-                "1": {"basis": ["e1"], "ring": "Z"}
-            },
-            differentials={
-                "1": np.array([[1, 0]], dtype=int)
-            },
-            metadata={"version": "1.0.0", "author": "Test"}
+            groups={
+                0: ChainGroup(dimension=0, generators=["v1", "v2"], boundary_matrix=np.array([], dtype=int)),
+                1: ChainGroup(dimension=1, generators=["e1"], boundary_matrix=np.array([[1], [0]], dtype=int))
+            }
         )
         
         # Test pretty printing
         output = chain_complex.pretty_print_ranks()
-        assert "Test Complex" in output
-        assert "C_0: rank 2" in output
-        assert "C_1: rank 1" in output
+        assert "Chain Complex with dimensions" in output
+        assert "C_0: 2 generators" in output
+        assert "C_1: 1 generators" in output
 
 
 if __name__ == "__main__":
