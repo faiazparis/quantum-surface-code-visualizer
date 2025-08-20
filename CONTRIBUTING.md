@@ -402,6 +402,6 @@ def test_large_matrices(self):
 
 **Remember**: We're building this together! Every contribution, no matter how small, helps advance our understanding of chain complexes and surface codes. Don't worry about being perfect - focus on being helpful and learning together.
 
-**Our Values**: Mathematical rigor, community collaboration, continuous learning, and making advanced mathematics accessible to everyone.
+**Our Values**: Mathematical rigor, community collaboration, continuous learning, and making mathematics accessible to everyone.
 
 **Your Impact**: Every line of code, every test, every documentation improvement helps solve real problems in surface code research and makes advanced mathematics more accessible to everyone.
