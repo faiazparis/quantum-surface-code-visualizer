@@ -188,36 +188,28 @@ class TestHomologyCalculator:
         assert H2.torsion == []
     
     def test_sphere_chain_complex(self):
-        """Test homology of S2 (sphere) using small cell complex."""
-        # Create sphere chain complex (simplified)
-        # This represents a sphere with 4 vertices, 6 edges, 4 faces
+        """Test homology of S2 (sphere) using minimal chain complex model."""
+        # Create a minimal chain complex that represents S2 homology
+        # This is an abstract chain complex, not a CW decomposition
         from ccscv.chain_complex import ChainGroup
         
         chain_complex = ChainComplex(
-            name="Sphere S2",
+            name="Sphere S2 - Minimal Chain Complex",
             grading=[0, 1, 2],
             chains={
-                "0": ChainGroup(basis=["v1", "v2", "v3", "v4"], ring="Z"),
-                "1": ChainGroup(basis=["e1", "e2", "e3", "e4", "e5", "e6"], ring="Z"),
-                "2": ChainGroup(basis=["f1", "f2", "f3", "f4"], ring="Z")
+                "0": ChainGroup(basis=["v"], ring="Z"),
+                "1": ChainGroup(basis=[], ring="Z"),
+                "2": ChainGroup(basis=["f"], ring="Z")
             },
             differentials={
-                "1": np.array([
-                    [1, 1, 0, 0, 0, 0],  # e1: v1 + v2
-                    [0, 1, 1, 0, 0, 0],  # e2: v2 + v3
-                    [1, 0, 1, 0, 0, 0],  # e3: v1 + v3
-                    [0, 0, 0, 1, 1, 0],  # e4: v2 + v4
-                    [0, 0, 0, 0, 1, 1],  # e5: v3 + v4
-                    [1, 0, 0, 1, 0, 1]   # e6: v1 + v4
-                ], dtype=int),
-                "2": np.array([
-                    [1, 0, 1, 0, 0, 1],  # f1: e1 + e3 + e6
-                    [0, 1, 0, 1, 1, 0],  # f2: e2 + e4 + e5
-                    [1, 1, 0, 0, 1, 0],  # f3: e1 + e2 + e5
-                    [0, 0, 1, 1, 0, 1]   # f4: e3 + e4 + e6
-                ], dtype=int)
+                "1": np.array([], dtype=int).reshape(1, 0),  # Empty matrix: 1×0
+                "2": np.array([], dtype=int).reshape(0, 1)   # Empty matrix: 0×1
             },
-            metadata={"version": "1.0.0", "author": "Test"}
+            metadata={
+                "version": "1.0.0", 
+                "author": "Test",
+                "note": "Abstract minimal chain complex model for S2 homology"
+            }
         )
         
         homology_calc = HomologyCalculator(chain_complex)
@@ -227,69 +219,41 @@ class TestHomologyCalculator:
         H1 = homology_calc.homology(1)
         H2 = homology_calc.homology(2)
         
-        # H0 should have rank 1 (one connected component)
+        # H0 ≈ Z (one connected component)
         assert H0.free_rank == 1
         assert H0.torsion == []
         
-        # H1 should have rank 0 (no holes)
+        # H1 = 0 (no 1-cycles)
         assert H1.free_rank == 0
         assert H1.torsion == []
         
-        # H2 should have rank 1 (one 2D hole - the sphere itself)
+        # H2 ≈ Z (one 2-cycle)
         assert H2.free_rank == 1
         assert H2.torsion == []
     
     def test_torus_chain_complex(self):
-        """Test homology of T2 (torus) using small cell complex."""
-        # Create torus chain complex (simplified)
-        # This represents a torus with 9 vertices, 18 edges, 9 faces
+        """Test homology of T2 (torus) using standard CW structure."""
+        # Create a valid CW chain complex for T2 with standard attaching map
+        # Standard CW: 1 vertex, 2 edges (a,b), 1 face with attaching map aba^{-1}b^{-1}
         from ccscv.chain_complex import ChainGroup
         
         chain_complex = ChainComplex(
-            name="Torus T2",
+            name="Torus T2 - Standard CW",
             grading=[0, 1, 2],
             chains={
-                "0": ChainGroup(basis=["v1", "v2", "v3", "v4", "v5", "v6", "v7", "v8", "v9"], ring="Z"),
-                "1": ChainGroup(basis=["e1", "e2", "e3", "e4", "e5", "e6", "e7", "e8", "e9", 
-                                "e10", "e11", "e12", "e13", "e14", "e15", "e16", "e17", "e18"], ring="Z"),
-                "2": ChainGroup(basis=["f1", "f2", "f3", "f4", "f5", "f6", "f7", "f8", "f9"], ring="Z")
+                "0": ChainGroup(basis=["v"], ring="Z"),
+                "1": ChainGroup(basis=["a", "b"], ring="Z"),
+                "2": ChainGroup(basis=["f"], ring="Z")
             },
             differentials={
-                "1": np.array([
-                    # Horizontal edges
-                    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    [0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    [0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    # Vertical edges
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1]
-                ], dtype=int),
-                "2": np.array([
-                    [1, 0, 0, 0, 0, 0, 0, 0, 0],
-                    [0, 1, 0, 0, 0, 0, 0, 0, 0],
-                    [0, 0, 1, 0, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 1, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 1, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 1, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 0, 1, 0, 0],
-                    [0, 0, 0, 0, 0, 0, 0, 1, 0],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 1]
-                ], dtype=int)
+                "1": np.array([[0], [0]], dtype=int),  # ∂1 = 0: both loops start/end at v
+                "2": np.array([[0, 0]], dtype=int)      # ∂2 = 0: abelianization of aba^{-1}b^{-1}
             },
-            metadata={"version": "1.0.0", "author": "Test"}
+            metadata={
+                "version": "1.0.0", 
+                "author": "Test",
+                "note": "Standard CW structure for T2 with proper attaching map"
+            }
         )
         
         homology_calc = HomologyCalculator(chain_complex)
@@ -299,28 +263,30 @@ class TestHomologyCalculator:
         H1 = homology_calc.homology(1)
         H2 = homology_calc.homology(2)
         
-        # H0 should have rank 1 (one connected component)
+        # H0 ≈ Z (one connected component)
         assert H0.free_rank == 1
         assert H0.torsion == []
         
-        # H1 should have rank 2 (two independent loops on torus)
+        # H1 ≈ Z² (two independent 1-cycles: a and b)
         assert H1.free_rank == 2
         assert H1.torsion == []
         
-        # H2 should have rank 1 (one 2D hole - the torus itself)
+        # H2 ≈ Z (one 2-cycle)
         assert H2.free_rank == 1
         assert H2.torsion == []
     
     def test_d_squared_zero_validation(self):
         """Test that d²=0 validation catches failures."""
         # Create chain complex that violates d²=0
+        from ccscv.chain_complex import ChainGroup
+        
         invalid_data = {
             "name": "Invalid Chain Complex",
             "grading": [0, 1, 2],
             "chains": {
-                "0": {"basis": ["v1", "v2"], "ring": "Z"},
-                "1": {"basis": ["e1"], "ring": "Z"},
-                "2": {"basis": ["f1"], "ring": "Z"}
+                "0": ChainGroup(basis=["v1", "v2"], ring="Z"),
+                "1": ChainGroup(basis=["e1"], ring="Z"),
+                "2": ChainGroup(basis=["f1"], ring="Z")
             },
             "differentials": {
                 "1": np.array([[1, 1]], dtype=int),  # Maps to both vertices
