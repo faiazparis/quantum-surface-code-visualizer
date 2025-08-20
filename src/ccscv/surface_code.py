@@ -13,8 +13,7 @@ classes and provides noise models and syndrome extraction interfaces.
 
 from typing import Dict, List, Optional, Tuple, Union, Literal, Any
 import numpy as np
-from numpy.typing import NDArray
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from .chain_complex import ChainComplex, ChainGroup
 from .homology import HomologyCalculator
 
@@ -22,11 +21,14 @@ from .homology import HomologyCalculator
 class QubitLayout(BaseModel):
     """Physical qubit layout for surface code."""
     
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+    
     qubits: List[str] = Field(..., description="List of qubit identifiers")
     positions: Dict[str, Tuple[float, float]] = Field(..., description="Qubit positions (x, y)")
     connectivity: List[Tuple[str, str]] = Field(..., description="Qubit connections")
     
-    @validator('connectivity')
+    @field_validator('connectivity')
+    @classmethod
     def validate_connectivity(cls, v):
         """Validate that connectivity references exist in qubits."""
         qubit_set = set(cls.qubits)
@@ -43,14 +45,16 @@ class ErrorModel(BaseModel):
     error_type: str = Field(..., description="Type of error (depolarizing, X, Z, Y)")
     correlation_length: float = Field(0.0, description="Error correlation length")
     
-    @validator('physical_error_rate')
+    @field_validator('physical_error_rate')
+    @classmethod
     def validate_error_rate(cls, v):
         """Validate error rate is in valid range."""
         if not 0 <= v <= 1:
             raise ValueError("Error rate must be between 0 and 1")
         return v
     
-    @validator('error_type')
+    @field_validator('error_type')
+    @classmethod
     def validate_error_type(cls, v):
         """Validate error type."""
         valid_types = ['depolarizing', 'X', 'Z', 'Y']
@@ -61,6 +65,8 @@ class ErrorModel(BaseModel):
 
 class StabilizerGroup(BaseModel):
     """Group of stabilizers of the same type."""
+    
+    model_config = ConfigDict(arbitrary_types_allowed=True)
     
     type: Literal['X', 'Z'] = Field(..., description="Stabilizer type (X or Z)")
     generators: List[List[str]] = Field(..., description="Stabilizer generators as qubit lists")
@@ -75,14 +81,17 @@ class StabilizerGroup(BaseModel):
 class LogicalOperator(BaseModel):
     """Logical operator for the surface code."""
     
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+    
     type: Literal['X', 'Z'] = Field(..., description="Operator type (X or Z)")
     support: List[str] = Field(..., description="Qubits in the support of this operator")
     weight: int = Field(..., description="Weight (number of qubits) of this operator")
     
-    @validator('weight')
-    def validate_weight(cls, v, values):
+    @field_validator('weight')
+    @classmethod
+    def validate_weight(cls, v, info):
         """Validate weight matches support size."""
-        if 'support' in values and v != len(values['support']):
+        if 'support' in info.data and v != len(info.data['support']):
             raise ValueError("Weight must match support size")
         return v
 
@@ -103,13 +112,16 @@ class SurfaceCode(BaseModel):
     stabilizers commute and the code is well-defined.
     """
     
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+    
     distance: int = Field(..., description="Code distance (minimum weight of logical operators)")
     kind: Literal['toric', 'planar'] = Field(..., description="Surface code type")
     chain_complex: Optional[ChainComplex] = Field(None, description="Underlying chain complex")
     qubit_layout: Optional[QubitLayout] = Field(None, description="Physical qubit layout")
     error_model: Optional[ErrorModel] = Field(None, description="Error model for simulations")
     
-    @validator('distance')
+    @field_validator('distance')
+    @classmethod
     def validate_distance(cls, v):
         """Validate code distance is positive and odd."""
         if v <= 0:

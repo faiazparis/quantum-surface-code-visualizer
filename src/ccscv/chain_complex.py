@@ -24,9 +24,9 @@ class ChainGroup(BaseModel):
     @field_validator('basis')
     @classmethod
     def validate_basis(cls, v):
-        """Validate that basis elements are unique and non-empty."""
-        if not v:
-            raise ValueError("Basis must contain at least one element")
+        """Validate that basis elements are unique. Empty basis represents the zero group."""
+        if v is None:
+            return []
         if len(v) != len(set(v)):
             raise ValueError("Basis elements must be unique")
         return v
@@ -42,7 +42,7 @@ class ChainGroup(BaseModel):
     @property
     def dimension(self) -> int:
         """Get the dimension of this chain group (computed from basis size)."""
-        return len(self.basis)
+        return len(self.basis)  # Returns 0 for empty basis (zero group)
     
     @property
     def generators(self) -> List[str]:
