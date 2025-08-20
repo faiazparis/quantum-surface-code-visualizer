@@ -2,18 +2,18 @@
 
 ## 🎯 Our Mission
 
-**We're building advanced mathematical models for everyone.** This project provides a foundation for chain complex analysis and surface code research, with a focus on mathematical rigor and community collaboration.
+**We're building mathematical models for everyone.** This project provides a foundation for chain complex analysis and surface code research, with a focus on mathematical correctness and community collaboration.
 
 We welcome contributors at all levels - from beginners learning algebraic topology to experts advancing the field.
 
 ## 🚨 What We're Building
 
 ### Current Capabilities ✅
-- **Chain Complex Validation**: d² = 0 condition checking and structure validation
+- **Chain Complex Validation**: Basic d² = 0 condition checking and structure validation
 - **Basic Homology Computation**: H₀, H₁, H₂ groups using Smith Normal Form
-- **JSON Data Loading**: Schema validation and chain complex construction
+- **JSON Data Loading**: Basic schema validation and chain complex construction
 - **Simple Visualization**: Basic plots of chain complex structure
-- **Foundation Framework**: Extensible architecture for advanced features
+- **Foundation Framework**: Extensible architecture for future features
 
 ### Areas for Improvement 🚧
 - **Advanced Decoders**: Better MWPM, Union-Find, and neural network implementations

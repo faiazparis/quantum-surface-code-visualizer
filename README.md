@@ -1,8 +1,8 @@
 # ChainComplex Surface Code Visualizer
 
-> **We provide a solid mathematical foundation; users bring their own data (JSON chain complexes). We invite contributions to reach rigorous standards!**
+> **We're building a mathematical foundation; users bring their own data (JSON chain complexes). We invite contributions to help us improve and reach better standards!**
 
-A Python framework for prototyping and analyzing surface code layouts via algebraic topology and quantum error correction, built on rigorous mathematical and physical foundations. **This is a working foundation with clear limitations - we invite contributors to help us reach our goals. Current implementation covers core mathematical validation.**
+A Python framework for prototyping and analyzing surface code layouts via algebraic topology and quantum error correction, built on mathematical and physical foundations. **This is a basic foundation with clear limitations - we invite contributors to help us improve. Current implementation covers some basic mathematical validation.**
 
 
 
@@ -33,9 +33,9 @@ A Python framework for prototyping and analyzing surface code layouts via algebr
 
 **Our Solution**: Mathematical tools for analyzing the complex topological structure of climate systems, improving our ability to model and predict environmental changes.
 
-## 🔬 What This Project Does
+## 🔬 What This Project Aims to Do
 
-The ChainComplex Surface Code Visualizer provides a foundation for researchers and practitioners to:
+The ChainComplex Surface Code Visualizer aims to provide a foundation for researchers and practitioners to:
 
 - **Design Quantum Error Correction Codes**: Create fault-tolerant quantum computing systems that can solve real-world problems
 - **Analyze Medical & Scientific Data**: Understand complex 3D structures in medical imaging, protein folding, and climate modeling
@@ -43,26 +43,31 @@ The ChainComplex Surface Code Visualizer provides a foundation for researchers a
 - **Model Financial Systems**: Identify hidden patterns in market data for better risk management
 - **Study Climate Dynamics**: Analyze the topological structure of weather and ocean systems
 
-## 📊 **CURRENT STATUS: What We Have vs. What's Next**
+## 📊 **CURRENT STATUS: Where We Are**
 
-### ✅ **What We HAVE (Ready to Use):**
-- **Chain Complex Validation**: d² = 0 condition checking and structure validation
-- **Basic Homology Computation**: H₀, H₁, H₂ groups using Smith Normal Form
-- **JSON Data Loading**: Schema validation and chain complex construction
-- **Basic Testing Framework**: Comprehensive test roadmap with initial implementations
-- **Project Architecture**: Well-structured, extensible codebase
+### ✅ **What We Have Working:**
+- **Basic Chain Complex Validation**: We can check d² = 0 condition for simple cases
+- **Simple Homology Computation**: Basic H₀, H₁, H₂ calculations work for small examples
+- **JSON Data Loading**: Basic schema validation and data loading
+- **Project Structure**: Codebase is organized and extensible
 
-### 🚧 **What's NEXT (Development Priorities):**
-- **Surface Code Analysis**: Basic structure exists, needs advanced features
-- **Decoder Framework**: Skeleton classes exist, need actual algorithm implementations
-- **Visualization Tools**: Basic plotting framework, needs interactive features
+### 🚧 **What's Partially Working:**
+- **Testing**: Some core mathematical tests pass, but many others fail
+- **API**: We recently updated the data model, which broke some existing tests
+- **Surface Code**: Basic structure exists, but we're still working on correct boundary operators
 
-### ❌ **What Should Be Done (Contribution Opportunities):**
-- **Physical Validation**: No experimental data comparison or threshold analysis
-- **Advanced Mathematics**: Missing chain maps, cohomology, topological invariants
-- **Performance Benchmarks**: No scalability analysis or memory usage data
-- **Real-time Decoding**: No actual working decoders with performance validation
-- **Error Models**: No comprehensive error models matching experimental data
+### ❌ **What Needs Work:**
+- **∂₁∘∂₂ ≠ 0 Errors**: Our surface code construction doesn't satisfy the fundamental d²=0 condition yet
+- **Test Compatibility**: Many tests still use the old data format
+- **Decoders**: We have the framework but the actual algorithms aren't implemented yet
+- **Integration**: Many test categories are failing due to these ongoing changes
+
+### 🎯 **Where We Need Help:**
+- **Fix Boundary Operators**: Help ensure our surface codes satisfy d²=0
+- **Update Tests**: Help modernize the test suite to work with our new structure
+- **Implement Decoders**: Help build working MWPM and Union-Find algorithms
+- **Performance**: Help improve our Smith Normal Form computation
+- **Documentation**: Help clarify concepts and provide better examples
 
 ## 🚀 Quickstart
 
@@ -210,7 +215,7 @@ HYPOTHESIS_SEED=42 pytest --hypothesis-profile=ci
 - **[Validation Framework](docs/validation.md)**: Testing and CI/CD pipeline
 - **[Mathematical Foundations](MATHEMATICAL_FOUNDATIONS.md)**: Target standards and contribution roadmap
 
-## 🔬 Rigor and References
+## 🔬 References and Learning Resources
 
 ### Mathematical Foundations
 - **Chain Complexes**: [Wikipedia](https://en.wikipedia.org/wiki/Chain_complex), [Wolfram MathWorld](https://mathworld.wolfram.com/ChainComplex.html)
@@ -228,9 +233,9 @@ HYPOTHESIS_SEED=42 pytest --hypothesis-profile=ci
 - **Property-Based Testing**: [Hypothesis Documentation](https://hypothesis.readthedocs.io/)
 - **Continuous Integration**: [GitHub Actions](https://docs.github.com/en/actions)
 
-## 🚧 Areas for Improvement
+## 🚧 Areas We're Working On
 
-We're actively working on these features and welcome contributions:
+We're trying to improve these features and welcome contributions:
 
 ### High Priority
 - **Advanced Decoders**: Working MWPM, Union-Find, and neural network implementations
@@ -252,12 +257,12 @@ We're actively working on these features and welcome contributions:
 
 ## 🤝 Contributing
 
-We welcome contributions that maintain mathematical rigor! See [CONTRIBUTING.md](CONTRIBUTING.md) for:
+We welcome contributions that help improve our mathematical implementations! See [CONTRIBUTING.md](CONTRIBUTING.md) for:
 
-- **Mathematical Validation**: All contributions must pass d² = 0 and homology tests
-- **Citation Requirements**: Claims and algorithms must be properly cited
-- **Code Review Process**: Focus on mathematical correctness and clarity
-- **Testing Standards**: Maintain test coverage and validation
+- **Mathematical Validation**: We try to ensure contributions maintain mathematical correctness
+- **Citation Requirements**: Claims and algorithms should be properly cited when possible
+- **Code Review Process**: We focus on clarity and correctness
+- **Testing Standards**: We aim to maintain good test coverage
 
 ### Getting Started
 - **Beginner**: Start with documentation and examples
@@ -291,8 +296,29 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Our Mission**: To build mathematical models for everyone by providing a solid foundation for chain complex analysis and surface code research. We focus on mathematical rigor and invite the community to help expand capabilities.
+**Our Mission**: To build mathematical models for everyone by providing a foundation for chain complex analysis and surface code research. We try to focus on mathematical correctness and invite the community to help expand capabilities.
 
-**Current Status**: This is a working foundation with basic functionality. We actively develop features and welcome contributions from researchers, developers, and enthusiasts to help us reach our goals.
+**Current Status**: This is a basic foundation that we're still building. We're working on features and welcome contributions from researchers, developers, and enthusiasts to help us improve.
 
-**Join Us**: Help us transform this from a promising foundation into a rigorous, validated tool that meets the high standards outlined in our [Mathematical Foundations](MATHEMATICAL_FOUNDATIONS.md).
+**Join Us**: Help us transform this from a promising foundation into a more reliable, validated tool that meets the standards outlined in our [Mathematical Foundations](MATHEMATICAL_FOUNDATIONS.md).
+
+### 🌟 **Our Learning Journey**
+
+We believe in learning from failure and staying true to our mission: **building advanced mathematical models for everyone**. Every test failure teaches us something new about how to make our models more robust and mathematically sound.
+
+We're incredibly grateful to contributors who help us improve our models, fix mathematical errors, and push the boundaries of what's possible. Your expertise and dedication help us move closer to our goal of making advanced mathematics accessible to everyone.
+
+**Thank you for being part of this journey.** Together, we can build something truly valuable for the mathematical and scientific community.
+
+### ⚠️ **Important Note for Contributors**
+
+**Current State**: This project is a **learning foundation** rather than a production-ready tool. While our basic mathematical theory is sound, our surface code implementations have fundamental errors that need fixing.
+
+**What This Means**: 
+- Researchers can't yet use this for quantum error correction research
+- Students can learn chain complex theory, but surface code examples are broken
+- Developers will need to fix core mathematical issues before building new features
+
+**Why We're Sharing This**: We believe in transparency and collaboration. By working together, we can transform this from a promising but flawed foundation into a more reliable tool that better serves the community.
+
+**Join Us**: Help us fix the math, improve the implementations, and build something groundbreaking together.

@@ -1,10 +1,10 @@
 # ChainComplex Surface Code Visualizer Documentation
 
-Welcome to the comprehensive documentation for the ChainComplex Surface Code Visualizer project. This project provides a rigorous mathematical framework for analyzing surface codes through algebraic topology and quantum error correction.
+Welcome to the documentation for the ChainComplex Surface Code Visualizer project. This project aims to provide a mathematical framework for analyzing surface codes through algebraic topology and quantum error correction.
 
 ## 🎯 Project Overview
 
-The ChainComplex Surface Code Visualizer is a Python framework that enables researchers and practitioners to:
+The ChainComplex Surface Code Visualizer is a Python framework that aims to enable researchers and practitioners to:
 
 - **Validate Chain Complexes**: Ensure mathematical consistency (d² = 0, proper dimensions)
 - **Compute Homology**: Calculate H₀, H₁, H₂ groups using Smith Normal Form

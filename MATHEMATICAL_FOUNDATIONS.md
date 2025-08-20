@@ -1,18 +1,18 @@
 # Mathematical and Physical Foundations
 ## ChainComplex Surface Code Visualizer
 
-This document establishes the rigorous mathematical and physical foundations upon which our visualization tool is built. **This is our target specification - we invite contributions to reach these standards.**
+This document describes the mathematical and physical foundations we're working toward for our visualization tool. **This is our target specification - we invite contributions to help us reach these standards.**
 
 ---
 
 ## 📊 **CURRENT IMPLEMENTATION STATUS**
 
-### ✅ **What We HAVE Implemented (Ready to Use):**
+### ✅ **What We Have Implemented (Basic Working):**
 - **Chain Complex Structure**: Basic `ChainComplex` class with d² = 0 validation
-- **Homology Computation**: `HomologyCalculator` using Smith Normal Form for exact integer arithmetic
-- **JSON Data Loading**: Schema validation and chain complex construction from user data
+- **Homology Computation**: `HomologyCalculator` using Smith Normal Form for basic integer arithmetic
+- **JSON Data Loading**: Basic schema validation and chain complex construction from user data
 - **Basic Testing Framework**: Test roadmap and initial test cases for S2 and T2 homology
-- **Project Architecture**: Well-structured, extensible codebase
+- **Project Architecture**: Basic structure that we're working to improve
 
 ### 🚧 **What's NEXT (Development Priorities):**
 - **Surface Code Analysis**: Basic structure exists, needs advanced features
@@ -330,13 +330,13 @@ Where:
 
 ## 🎯 **OUR MISSION**
 
-**We're building mathematical models for everyone.** This document represents our target - the rigorous standards we're working toward. We have a solid foundation, but we need your help to reach these goals.
+**We're building mathematical models for everyone.** This document represents our target - the standards we're working toward. We have a basic foundation, but we need your help to reach these goals.
 
 **Current Status**: Working foundation with 25-30% compliance with target standards.
 
 **Your Impact**: Every contribution brings us closer to building the world-class mathematical framework we envision.
 
-**Join Us**: Help us transform this from a promising foundation into a rigorous, validated tool that meets the highest standards of mathematical and physical accuracy.
+**Join Us**: Help us transform this from a promising foundation into a more reliable, validated tool that meets the standards of mathematical and physical accuracy.
 
 ---
 
