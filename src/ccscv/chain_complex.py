@@ -43,6 +43,10 @@ class ChainGroup(BaseModel):
         if not isinstance(v, np.ndarray):
             v = np.asarray(v)
         
+        # Validate integer coefficients
+        if v.size > 0 and not np.issubdtype(v.dtype, np.integer):
+            raise ValueError("Boundary matrix must have integer coefficients")
+        
         # Get the generators and dimension from the model data
         generators = info.data.get('generators', [])
         dimension = info.data.get('dimension', 0)

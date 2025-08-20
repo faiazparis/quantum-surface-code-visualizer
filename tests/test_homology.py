@@ -278,20 +278,13 @@ class TestHomologyCalculator:
         """Test that non-integer coefficients are caught."""
         # Create chain complex with non-integer coefficients
         from ccscv.chain_complex import ChainGroup
-        
-        invalid_data = {
-            "groups": {
-                0: ChainGroup(dimension=0, generators=["v1", "v2"], boundary_matrix=np.array([], dtype=int)),
-                1: ChainGroup(dimension=1, generators=["e1"], boundary_matrix=np.array([[0.5], [1.0]], dtype=float))
-            }
-        }
-        
-        # This should fail validation
+    
+        # This should fail validation at the ChainGroup level
         with pytest.raises(ValueError) as excinfo:
-            ChainComplex(**invalid_data)
+            ChainGroup(dimension=1, generators=["e1"], boundary_matrix=np.array([[0.5], [1.0]], dtype=float))
         
         # Check that the error message mentions integer coefficients
-        assert "integer" in str(excinfo.value).lower() or "dtype" in str(excinfo.value).lower()
+        assert "integer" in str(excinfo.value).lower()
 
 
 class TestHomologyResult:

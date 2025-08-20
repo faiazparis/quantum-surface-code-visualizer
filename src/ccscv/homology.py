@@ -8,7 +8,7 @@ using Smith normal form (SNF) for exact integer computations.
 
 from typing import Dict, List, Optional, Tuple, Union, Any
 import numpy as np
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, field_validator
 from .chain_complex import ChainComplex
 from sympy import Matrix
 import sympy as sp
@@ -39,38 +39,117 @@ class HomologyResult(BaseModel):
     free_rank: int = Field(..., description="Free rank (Betti number)")
     torsion: List[Tuple[int, int]] = Field(..., description="Torsion: [(prime, power), ...]")
     generators_metadata: Dict[str, Any] = Field(..., description="Additional generator information")
+    
+    @field_validator('dimension')
+    @classmethod
+    def validate_dimension(cls, v):
+        if v < 0:
+            raise ValueError("Dimension must be non-negative")
+        return v
+    
+    @field_validator('free_rank')
+    @classmethod
+    def validate_free_rank(cls, v):
+        if v < 0:
+            raise ValueError("Free rank must be non-negative")
+        return v
 
 
 def smith_normal_form(A: np.ndarray):
+    """
+    Compute Smith Normal Form of matrix A.
+    
+    Args:
+        A: Input matrix
+        
+    Returns:
+        Tuple (S, U, V) where S is the Smith normal form
+    """
+    if A is None or not isinstance(A, np.ndarray):
+        raise ValueError("Input must be a non-empty numpy.ndarray")
+    
     A = np.asarray(A, dtype=int)
     m, n = A.shape
-    A_sym = Matrix(A.tolist())
+    
+    # Handle empty matrices
     if m == 0 or n == 0:
-        S = Matrix.zeros(m, n)
-        return S, None, None
+        S = np.zeros((m, n), dtype=int)
+        return S, np.eye(m, dtype=int), np.eye(n, dtype=int)
+    
+    A_sym = Matrix(A.tolist())
+    
     if snf_func is not None:
-        res = snf_func(A_sym)
-        if isinstance(res, tuple):
-            if len(res) == 3:
-                S, U, V = res
-            elif len(res) == 1:
-                S, = res
-                U = V = None
+        try:
+            res = snf_func(A_sym)
+            if isinstance(res, tuple):
+                if len(res) == 3:
+                    S, U, V = res
+                elif len(res) == 1:
+                    S = res[0]
+                    U = V = None
+                else:
+                    S = res
+                    U = V = None
             else:
                 S = res
                 U = V = None
-        else:
-            S, U, V = res, None, None
-        return S, U, V
-    inv = A_sym.invariant_factors()
-    S = Matrix.zeros(m, n)
-    for i, d in enumerate(inv):
-        S[i, i] = d
-    return S, None, None
+        except Exception:
+            # Fallback to invariant factors method
+            inv = A_sym.invariant_factors()
+            S = Matrix.zeros(m, n)
+            for i, d in enumerate(inv):
+                if i < min(m, n):
+                    S[i, i] = d
+            U = V = None
+    else:
+        # Use invariant factors method
+        inv = A_sym.invariant_factors()
+        S = Matrix.zeros(m, n)
+        for i, d in enumerate(inv):
+            if i < min(m, n):
+                S[i, i] = d
+        # For invariant factors method, we don't have transformation matrices
+        # so we'll use identity matrices as defaults
+        U = Matrix.eye(m)
+        V = Matrix.eye(n)
+    
+    # Convert SymPy Matrix back to numpy array
+    if hasattr(S, 'tolist'):
+        S = np.array(S.tolist(), dtype=int)
+    else:
+        S = np.array(S, dtype=int)
+    
+    # Ensure U and V are numpy arrays
+    if U is not None and hasattr(U, 'tolist'):
+        U = np.array(U.tolist(), dtype=int)
+    elif U is None:
+        U = np.eye(m, dtype=int)  # Default to identity matrix
+        
+    if V is not None and hasattr(V, 'tolist'):
+        V = np.array(V.tolist(), dtype=int)
+    elif V is None:
+        V = np.eye(n, dtype=int)  # Default to identity matrix
+    
+    return S, U, V
 
 
 def rank_from_snf(S):
-    return sum(1 for i in range(min(S.rows, S.cols)) if S[i, i] != 0)
+    """
+    Extract rank from Smith Normal Form matrix.
+    
+    Args:
+        S: Smith normal form matrix (numpy array or SymPy Matrix)
+        
+    Returns:
+        Rank of the matrix
+    """
+    if hasattr(S, 'shape'):  # numpy array
+        m, n = S.shape
+        return int(sum(1 for i in range(min(m, n)) if S[i, i] != 0))
+    elif hasattr(S, 'rows'):  # SymPy Matrix
+        return int(sum(1 for i in range(min(S.rows, S.cols)) if S[i, i] != 0))
+    else:
+        return 0
 
 
 def group_dim(group):
@@ -93,8 +172,12 @@ def kernel_rank(A: np.ndarray) -> int:
     Returns:
         Rank of the kernel
     """
-    if A.size == 0:
+    if A is None or A.size == 0:
         return 0
+    
+    # Handle zero matrix case
+    if np.all(A == 0):
+        return A.shape[1]  # Kernel has full dimension
     
     # Compute Smith normal form
     S, _, _ = smith_normal_form(A)
@@ -102,7 +185,7 @@ def kernel_rank(A: np.ndarray) -> int:
     # Count zero diagonal elements (these correspond to kernel elements)
     kernel_rank = np.sum(S.diagonal() == 0)
     
-    return kernel_rank
+    return int(kernel_rank)
 
 
 def image_rank(A: np.ndarray) -> int:
@@ -117,8 +200,12 @@ def image_rank(A: np.ndarray) -> int:
     Returns:
         Rank of the image
     """
-    if A.size == 0:
+    if A is None or A.size == 0:
         return 0
+    
+    # Handle zero matrix case
+    if np.all(A == 0):
+        return 0  # Image has zero dimension
     
     # Compute Smith normal form
     S, _, _ = smith_normal_form(A)
@@ -126,7 +213,7 @@ def image_rank(A: np.ndarray) -> int:
     # Count non-zero diagonal elements (these correspond to image elements)
     image_rank = np.sum(S.diagonal() != 0)
     
-    return image_rank
+    return int(image_rank)
 
 
 def torsion_invariants(S) -> List[Tuple[int, int]]:
