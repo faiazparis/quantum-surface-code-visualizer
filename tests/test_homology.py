@@ -5,7 +5,7 @@ This module tests the enhanced homology calculator, including:
 - Smith normal form computation
 - Kernel and image rank calculations
 - Torsion invariant extraction
-- Homology computation for standard spaces (S^2, T^2)
+- Homology computation for standard spaces (S2, T2)
 - d²=0 validation
 - Integer arithmetic accuracy
 """
@@ -188,13 +188,13 @@ class TestHomologyCalculator:
         assert H2.torsion == []
     
     def test_sphere_chain_complex(self):
-        """Test homology of S^2 (sphere) using small cell complex."""
+        """Test homology of S2 (sphere) using small cell complex."""
         # Create sphere chain complex (simplified)
         # This represents a sphere with 4 vertices, 6 edges, 4 faces
         from ccscv.chain_complex import ChainGroup
         
         chain_complex = ChainComplex(
-            name="Sphere S^2",
+            name="Sphere S2",
             grading=[0, 1, 2],
             chains={
                 "0": ChainGroup(basis=["v1", "v2", "v3", "v4"], ring="Z"),
@@ -240,13 +240,13 @@ class TestHomologyCalculator:
         assert H2.torsion == []
     
     def test_torus_chain_complex(self):
-        """Test homology of T^2 (torus) using small cell complex."""
+        """Test homology of T2 (torus) using small cell complex."""
         # Create torus chain complex (simplified)
         # This represents a torus with 9 vertices, 18 edges, 9 faces
         from ccscv.chain_complex import ChainGroup
         
         chain_complex = ChainComplex(
-            name="Torus T^2",
+            name="Torus T2",
             grading=[0, 1, 2],
             chains={
                 "0": ChainGroup(basis=["v1", "v2", "v3", "v4", "v5", "v6", "v7", "v8", "v9"], ring="Z"),

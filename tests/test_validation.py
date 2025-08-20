@@ -64,9 +64,9 @@ class TestCriticalMathematicalValidation:
     @pytest.mark.mathematical
     @pytest.mark.homology
     def test_homology_sphere(self):
-        """Test homology computation for S² sphere."""
+        """Test homology computation for S2 sphere."""
         sphere_data = {
-            "name": "Sphere S²",
+            "name": "Sphere S2",
             "grading": [0, 1, 2],
             "chains": {
                 "0": {"basis": ["v1", "v2", "v3"], "ring": "Z"},
@@ -86,20 +86,20 @@ class TestCriticalMathematicalValidation:
         chain_complex = ChainComplex(**sphere_data)
         calculator = HomologyCalculator(chain_complex)
         
-        # Test H₀(S²) = ℤ
+        # Test H₀(S2) = ℤ
         h0 = calculator.homology(0)
-        assert h0.free_rank == 1, f"Expected H₀(S²) = ℤ, got rank {h0.free_rank}"
-        assert len(h0.torsion) == 0, f"Expected no torsion in H₀(S²), got {h0.torsion}"
+        assert h0.free_rank == 1, f"Expected H₀(S2) = ℤ, got rank {h0.free_rank}"
+        assert len(h0.torsion) == 0, f"Expected no torsion in H₀(S2), got {h0.torsion}"
         
-        # Test H₁(S²) = 0
+        # Test H₁(S2) = 0
         h1 = calculator.homology(1)
-        assert h1.free_rank == 0, f"Expected H₁(S²) = 0, got rank {h1.free_rank}"
-        assert len(h1.torsion) == 0, f"Expected no torsion in H₁(S²), got {h1.torsion}"
+        assert h1.free_rank == 0, f"Expected H₁(S2) = 0, got rank {h1.free_rank}"
+        assert len(h1.torsion) == 0, f"Expected no torsion in H₁(S2), got {h0.torsion}"
         
-        # Test H₂(S²) = ℤ
+        # Test H₂(S2) = ℤ
         h2 = calculator.homology(2)
-        assert h2.free_rank == 1, f"Expected H₂(S²) = ℤ, got rank {h2.free_rank}"
-        assert len(h2.torsion) == 0, f"Expected no torsion in H₂(S²), got {h2.torsion}"
+        assert h2.free_rank == 1, f"Expected H₂(S2) = ℤ, got rank {h2.free_rank}"
+        assert len(h2.torsion) == 0, f"Expected no torsion in H₂(S2), got {h2.torsion}"
         
         # Test Euler characteristic χ = 2
         euler_char = calculator.get_euler_characteristic()
@@ -110,9 +110,9 @@ class TestCriticalMathematicalValidation:
     @pytest.mark.mathematical
     @pytest.mark.homology
     def test_homology_torus(self):
-        """Test homology computation for T² torus."""
+        """Test homology computation for T2 torus."""
         torus_data = {
-            "name": "Torus T²",
+            "name": "Torus T2",
             "grading": [0, 1, 2],
             "chains": {
                 "0": {"basis": ["v1", "v2", "v3", "v4"], "ring": "Z"},
@@ -132,20 +132,20 @@ class TestCriticalMathematicalValidation:
         chain_complex = ChainComplex(**torus_data)
         calculator = HomologyCalculator(chain_complex)
         
-        # Test H₀(T²) = ℤ
-        h0 = calculator.homology(0)
-        assert h0.free_rank == 1, f"Expected H₀(T²) = ℤ, got rank {h0.free_rank}"
-        assert len(h0.torsion) == 0, f"Expected no torsion in H₀(T²), got {h0.torsion}"
-        
-        # Test H₁(T²) = ℤ²
-        h1 = calculator.homology(1)
-        assert h1.free_rank == 2, f"Expected H₁(T²) = ℤ², got rank {h1.free_rank}"
-        assert len(h1.torsion) == 0, f"Expected no torsion in H₁(T²), got {h1.torsion}"
-        
-        # Test H₂(T²) = ℤ
-        h2 = calculator.homology(2)
-        assert h2.free_rank == 1, f"Expected H₂(T²) = ℤ, got rank {h2.free_rank}"
-        assert len(h2.torsion) == 0, f"Expected no torsion in H₂(T²), got {h2.torsion}"
+        # Test H₀(T2) = ℤ
+h0 = calculator.homology(0)
+assert h0.free_rank == 1, f"Expected H₀(T2) = ℤ, got rank {h0.free_rank}"
+assert len(h0.torsion) == 0, f"Expected no torsion in H₀(T2), got {h0.torsion}"
+
+# Test H₁(T2) = ℤ²
+h1 = calculator.homology(1)
+assert h1.free_rank == 2, f"Expected H₁(T2) = ℤ², got rank {h1.free_rank}"
+assert len(h1.torsion) == 0, f"Expected no torsion in H₁(T2), got {h1.torsion}"
+
+# Test H₂(T2) = ℤ
+h2 = calculator.homology(2)
+assert h2.free_rank == 1, f"Expected H₂(T2) = ℤ, got rank {h2.free_rank}"
+assert len(h2.torsion) == 0, f"Expected no torsion in H₂(T2), got {h2.torsion}"
         
         # Test Euler characteristic χ = 0
         euler_char = calculator.get_euler_characteristic()

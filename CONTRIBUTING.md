@@ -270,11 +270,11 @@ class TestHomologyComputation:
     """Test homology group computation."""
     
     def test_sphere_homology(self):
-        """Test H₀(S²) = ℤ, H₁(S²) = 0, H₂(S²) = ℤ."""
+        """Test H₀(S2) = ℤ, H₁(S2) = 0, H₂(S2) = ℤ."""
         # Test implementation
         
     def test_torus_homology(self):
-        """Test H₀(T²) = ℤ, H₁(T²) = ℤ², H₂(T²) = ℤ."""
+        """Test H₀(T2) = ℤ, H₁(T2) = ℤ², H₂(T2) = ℤ."""
         # Test implementation
 ```
 

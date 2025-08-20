@@ -14,8 +14,8 @@ This document outlines the comprehensive validation and testing framework for th
 - **Integer Coefficient Validation**: All differentials must have integer entries
 
 #### Homology Computation Validation
-- **S² (Sphere) Homology**: Must compute `H₀(S²) = ℤ`, `H₁(S²) = 0`, `H₂(S²) = ℤ`
-- **T² (Torus) Homology**: Must compute `H₀(T²) = ℤ`, `H₁(T²) = ℤ²`, `H₂(T²) = ℤ`
+- **S2 (Sphere) Homology**: Must compute `H₀(S2) = ℤ`, `H₁(S2) = 0`, `H₂(S2) = ℤ`
+- **T2 (Torus) Homology**: Must compute `H₀(T2) = ℤ`, `H₁(T2) = ℤ²`, `H₂(T2) = ℤ`
 - **Euler Characteristic**: Must satisfy `χ = Σ(-1)ⁿ βₙ` where βₙ are Betti numbers
 - **Torsion Invariants**: Must correctly identify and factor torsion subgroups
 
@@ -72,10 +72,10 @@ def test_d_squared_zero_condition():
     """Test that d² = 0 holds for all chain complexes"""
     
 def test_homology_sphere():
-    """Test homology computation for S² sphere"""
+    """Test homology computation for S2 sphere"""
     
 def test_homology_torus():
-    """Test homology computation for T² torus"""
+    """Test homology computation for T2 torus"""
     
 def test_smith_normal_form():
     """Test SNF computation and torsion extraction"""
@@ -382,10 +382,10 @@ def validate_threshold_behavior(surface_code: SurfaceCode, decoder: DecoderBase)
 
 ### 1. Known Test Cases
 
-#### Sphere (S²) Chain Complex
+#### Sphere (S2) Chain Complex
 ```json
 {
-  "name": "Sphere S²",
+  "name": "Sphere S2",
   "grading": [0, 1, 2],
   "chains": {
     "0": {"basis": ["v1", "v2", "v3"], "ring": "Z"},
@@ -399,10 +399,10 @@ def validate_threshold_behavior(surface_code: SurfaceCode, decoder: DecoderBase)
 }
 ```
 
-#### Torus (T²) Chain Complex
+#### Torus (T2) Chain Complex
 ```json
 {
-  "name": "Torus T²", 
+  "name": "Torus T2", 
   "grading": [0, 1, 2],
   "chains": {
     "0": {"basis": ["v1", "v2", "v3", "v4"], "ring": "Z"},

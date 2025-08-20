@@ -11,7 +11,7 @@ This directory contains the comprehensive validation and testing framework for t
 These tests **MUST PASS** for the system to be considered mathematically valid:
 
 - **d² = 0 Condition**: Verifies that boundary operators satisfy the fundamental chain complex axiom
-- **Homology Computation**: Tests S² (sphere) and T² (torus) homology calculations
+- **Homology Computation**: Tests S2 (sphere) and T2 (torus) homology calculations
 - **Smith Normal Form**: Validates exact integer arithmetic and torsion detection
 - **Stabilizer Formalism**: Ensures surface code stabilizers commute correctly
 - **Logical Operator Structure**: Verifies homology correspondence and anticommutation
@@ -155,8 +155,8 @@ CRITICAL_TESTS = [
 
 ### Known Test Cases
 
-- **Sphere (S²)**: H₀ = ℤ, H₁ = 0, H₂ = ℤ, χ = 2
-- **Torus (T²)**: H₀ = ℤ, H₁ = ℤ², H₂ = ℤ, χ = 0
+- **Sphere (S2)**: H₀ = ℤ, H₁ = 0, H₂ = ℤ, χ = 2
+- **Torus (T2)**: H₀ = ℤ, H₁ = ℤ², H₂ = ℤ, χ = 0
 - **Triangle**: Simple 2D cell complex for d² = 0 validation
 
 ### Edge Cases
