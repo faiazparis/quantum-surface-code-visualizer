@@ -1,0 +1,232 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/faiazparis/chaincomplex-surface-code-visualizer/schema/chain_complex.schema.json",
+  "title": "Chain Complex Schema",
+  "description": "Strict JSON schema for graded chain complexes with differentials satisfying d²=0",
+  "type": "object",
+  "required": ["name", "grading", "chains", "differentials", "metadata"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Name or identifier for the chain complex",
+      "minLength": 1
+    },
+    "grading": {
+      "type": "array",
+      "description": "Dimensions where chain groups exist",
+      "items": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "chains": {
+      "type": "object",
+      "description": "Chain groups keyed by degree (as string)",
+      "patternProperties": {
+        "^[0-9]+$": {
+          "type": "object",
+          "required": ["basis", "ring"],
+          "properties": {
+            "basis": {
+              "type": "array",
+              "description": "Basis elements for this chain group",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 0,
+              "uniqueItems": true
+            },
+            "ring": {
+              "type": "string",
+              "enum": ["Z", "Z_p"],
+              "description": "Ring over which the chain group is defined"
+            }
+          }
+        }
+      },
+      "minProperties": 1
+    },
+    "differentials": {
+      "type": "object",
+      "description": "Differential operators keyed by degree (as string)",
+      "patternProperties": {
+        "^[0-9]+$": {
+          "oneOf": [
+            {
+              "type": "array",
+              "description": "Matrix as list of lists",
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "integer"
+                }
+              }
+            },
+            {
+              "type": "array",
+              "description": "Empty matrix for zero maps",
+              "maxItems": 0
+            }
+          ]
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Metadata about the chain complex",
+      "required": ["version", "author"],
+      "properties": {
+        "version": {
+          "type": "string",
+          "description": "Schema version",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "author": {
+          "type": "string",
+          "description": "Author or creator of the chain complex",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "description": "Optional description of the chain complex"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Creation timestamp"
+        },
+        "tags": {
+          "type": "array",
+          "description": "Tags for categorization",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "qec_overlays": {
+      "type": "object",
+      "description": "Optional QEC-specific data overlay",
+      "properties": {
+        "geometry": {
+          "type": "string",
+          "enum": ["toric", "planar", "custom"],
+          "description": "Surface code geometry type"
+        },
+        "distance": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Code distance (minimum number of qubits to flip for logical error)"
+        },
+        "data_qubits": {
+          "type": "array",
+          "description": "Data qubit positions",
+          "items": {
+            "type": "object",
+            "properties": {
+              "position": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 2,
+                "maxItems": 3
+              },
+              "type": {
+                "type": "string",
+                "enum": ["data", "measurement"]
+              }
+            }
+          }
+        },
+        "edge_qubits": {
+          "type": "array",
+          "description": "Edge qubit positions for measurements",
+          "items": {
+            "type": "object",
+            "properties": {
+              "position": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 2,
+                "maxItems": 3
+              },
+              "measurement_type": {
+                "type": "string",
+                "enum": ["X", "Z"]
+              }
+            }
+          }
+        },
+        "face_qubits": {
+          "type": "array",
+          "description": "Face qubit positions for stabilizer measurements",
+          "items": {
+            "type": "object",
+            "properties": {
+              "position": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 2,
+                "maxItems": 3
+              },
+              "stabilizer_type": {
+                "type": "string",
+                "enum": ["X", "Z"]
+              }
+            }
+          }
+        },
+        "x_stabilizers": {
+          "type": "array",
+          "description": "X-type stabilizer definitions",
+          "items": {
+            "type": "object",
+            "properties": {
+              "qubits": {
+                "type": "array",
+                "items": {
+                  "type": "integer"
+                },
+                "description": "Indices of qubits in this stabilizer"
+              },
+              "weight": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Number of qubits in this stabilizer"
+              }
+            }
+          }
+        },
+        "z_stabilizers": {
+          "type": "array",
+          "description": "Z-type stabilizer definitions",
+          "items": {
+            "type": "object",
+            "properties": {
+              "qubits": {
+                "type": "array",
+                "items": {
+                  "type": "integer"
+                },
+                "description": "Indices of qubits in this stabilizer"
+              },
+              "weight": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Number of qubits in this stabilizer"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

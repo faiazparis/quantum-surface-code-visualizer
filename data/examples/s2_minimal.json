@@ -1,0 +1,18 @@
+{
+  "name": "S2_minimal",
+  "grading": [0, 1, 2],
+  "chains": {
+    "0": {"basis": ["v"], "ring": "Z"},
+    "1": {"basis": [], "ring": "Z"},
+    "2": {"basis": ["f"], "ring": "Z"}
+  },
+  "differentials": {
+    "1": [],
+    "2": []
+  },
+  "metadata": {
+    "version": "1.0.0",
+    "author": "Test Author",
+    "description": "S2 minimal CW complex - single vertex, no edges, single face"
+  }
+}
