@@ -10,7 +10,13 @@ from typing import Dict, List, Optional, Tuple, Union, Any
 import numpy as np
 from pydantic import BaseModel, Field, ConfigDict
 from .chain_complex import ChainComplex
+from sympy import Matrix
 import sympy as sp
+try:
+    # SymPy >=1.11 provides this in normalforms
+    from sympy.matrices.normalforms import smith_normal_form as snf_func
+except Exception:
+    snf_func = None
 
 
 class HomologyGroup(BaseModel):
@@ -35,32 +41,48 @@ class HomologyResult(BaseModel):
     generators_metadata: Dict[str, Any] = Field(..., description="Additional generator information")
 
 
-def smith_normal_form(A: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+def smith_normal_form(A: np.ndarray) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[np.ndarray]]:
     """
     Compute the Smith normal form of a matrix A over the integers.
     
-    The Smith normal form is a diagonal matrix D = P * A * Q where:
-    - P and Q are unimodular matrices (integer matrices with determinant ±1)
-    - D is diagonal with d_i | d_{i+1} for all i
+    The Smith normal form is a diagonal matrix S = U * A * V where:
+    - U and V are unimodular matrices (integer matrices with determinant ±1)
+    - S is diagonal with s_i | s_{i+1} for all i
     
     Args:
         A: Integer matrix
         
     Returns:
-        Tuple (D, P, Q) where D is the Smith normal form, P and Q are transformation matrices
+        Tuple (S, U, V) where S is the Smith normal form, U and V are transformation matrices
+        (U and V may be None for older SymPy versions)
     """
+    # Ensure integer dtype
+    A = np.asarray(A, dtype=int)
+    
     # Convert numpy array to sympy matrix
-    A_sympy = sp.Matrix(A.tolist())
+    A_sympy = Matrix(A.tolist())
     
-    # Compute Smith normal form
-    D, P, Q = A_sympy.smith_normal_form()
-    
-    # Convert back to numpy arrays
-    D_np = np.array(D.tolist(), dtype=int)
-    P_np = np.array(P.tolist(), dtype=int)
-    Q_np = np.array(Q.tolist(), dtype=int)
-    
-    return D_np, P_np, Q_np
+    if snf_func is not None:
+        # Functional API: returns (S, U, V)
+        S, U, V = snf_func(A_sympy)
+        # Convert back to numpy arrays
+        S_np = np.array(S.tolist(), dtype=int)
+        U_np = np.array(U.tolist(), dtype=int) if U is not None else None
+        V_np = np.array(V.tolist(), dtype=int) if V is not None else None
+        return S_np, U_np, V_np
+    else:
+        # Fallback for very old SymPy lacking normalforms.smith_normal_form
+        # Use invariant_factors to build S
+        inv = A_sympy.invariant_factors()
+        # Build diagonal S with invariant factors; pad to matrix size
+        m, n = A_sympy.shape
+        S = Matrix.zeros(m, n)
+        for i, d in enumerate(inv):
+            S[i, i] = d
+        # Convert to numpy and return
+        S_np = np.array(S.tolist(), dtype=int)
+        # No unimodular matrices available; return placeholders
+        return S_np, None, None
 
 
 def kernel_rank(A: np.ndarray) -> int:
@@ -79,10 +101,10 @@ def kernel_rank(A: np.ndarray) -> int:
         return 0
     
     # Compute Smith normal form
-    D, _, _ = smith_normal_form(A)
+    S, _, _ = smith_normal_form(A)
     
     # Count zero diagonal elements (these correspond to kernel elements)
-    kernel_rank = np.sum(D.diagonal() == 0)
+    kernel_rank = np.sum(S.diagonal() == 0)
     
     return kernel_rank
 
@@ -103,15 +125,15 @@ def image_rank(A: np.ndarray) -> int:
         return 0
     
     # Compute Smith normal form
-    D, _, _ = smith_normal_form(A)
+    S, _, _ = smith_normal_form(A)
     
     # Count non-zero diagonal elements (these correspond to image elements)
-    image_rank = np.sum(D.diagonal() != 0)
+    image_rank = np.sum(S.diagonal() != 0)
     
     return image_rank
 
 
-def torsion_invariants(D: np.ndarray) -> List[Tuple[int, int]]:
+def torsion_invariants(S: np.ndarray) -> List[Tuple[int, int]]:
     """
     Extract torsion invariants from the diagonal of Smith normal form.
     
@@ -119,16 +141,16 @@ def torsion_invariants(D: np.ndarray) -> List[Tuple[int, int]]:
     They represent the finite cyclic factors in the homology group.
     
     Args:
-        D: Diagonal matrix from Smith normal form
+        S: Diagonal matrix from Smith normal form
         
     Returns:
         List of (prime, power) tuples representing torsion factors
     """
-    if D.size == 0:
+    if S.size == 0:
         return []
     
     torsion_factors = []
-    diagonal = D.diagonal()
+    diagonal = S.diagonal()
     
     for d in diagonal:
         if d != 0 and abs(d) != 1:
@@ -213,8 +235,8 @@ class HomologyCalculator:
         # Compute torsion from the differential at dimension n
         torsion = []
         if d_n is not None:
-            D, _, _ = smith_normal_form(d_n)
-            torsion = torsion_invariants(D)
+            S, _, _ = smith_normal_form(d_n)
+            torsion = torsion_invariants(S)
         
         # Generate metadata
         generators_metadata = {
