@@ -240,12 +240,18 @@ class HomologyCalculator:
         d_n = self.chain_complex.get_boundary_operator(n)
         d_n_plus_1 = self.chain_complex.get_boundary_operator(n + 1)
         
-        # Compute ranks using Smith normal form
-        kernel_rank_n = kernel_rank(d_n) if d_n is not None else 0
-        image_rank_n_plus_1 = image_rank(d_n_plus_1) if d_n_plus_1 is not None else 0
-        
-        # Free rank is kernel rank minus image rank
-        free_rank = max(0, kernel_rank_n - image_rank_n_plus_1)
+        # For H₀, compute as C₀ / im(d₁) (unreduced homology)
+        if n == 0:
+            # H₀ = C₀ / im(d₁) where C₀ is the chain group at dimension 0
+            C0_dim = self.chain_complex.get_rank(0)
+            # im(d₁) is the rank of the d₁ matrix
+            image_rank_d1 = image_rank(d_n_plus_1) if d_n_plus_1 is not None else 0
+            free_rank = C0_dim - image_rank_d1
+        else:
+            # For other dimensions: H_n = ker(d_n) / im(d_{n+1})
+            kernel_rank_n = kernel_rank(d_n) if d_n is not None else 0
+            image_rank_n_plus_1 = image_rank(d_n_plus_1) if d_n_plus_1 is not None else 0
+            free_rank = max(0, kernel_rank_n - image_rank_n_plus_1)
         
         # Compute torsion from the differential at dimension n
         torsion = []
@@ -255,8 +261,8 @@ class HomologyCalculator:
         
         # Generate metadata
         generators_metadata = {
-            'kernel_rank': kernel_rank_n,
-            'image_rank': image_rank_n_plus_1,
+            'kernel_rank': kernel_rank(d_n) if d_n is not None else 0,
+            'image_rank': image_rank(d_n_plus_1) if d_n_plus_1 is not None else 0,
             'total_generators': self.chain_complex.get_rank(n),
             'differential_shape': d_n.shape if d_n is not None else None
         }
