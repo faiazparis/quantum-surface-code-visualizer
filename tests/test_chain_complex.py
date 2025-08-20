@@ -7,6 +7,10 @@ against established mathematical principles.
 
 import pytest
 import numpy as np
+import sys
+import os
+# Add the src directory to the path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 from ccscv.chain_complex import ChainComplex, ChainGroup
 
 
@@ -16,7 +20,7 @@ class TestChainGroup:
     def test_chain_group_creation(self):
         """Test creating a chain group."""
         generators = ["v1", "v2", "v3"]
-        boundary_matrix = np.array([[1, 0], [0, 1], [1, 1]])
+        boundary_matrix = np.array([[1, 0, 1], [0, 1, 1]])  # 2x3: correct dimensions
         
         group = ChainGroup(
             dimension=1,
@@ -31,9 +35,9 @@ class TestChainGroup:
     def test_chain_group_validation(self):
         """Test chain group validation."""
         generators = ["v1", "v2"]
-        boundary_matrix = np.array([[1, 0], [0, 1], [1, 1]])  # Wrong number of rows
+        boundary_matrix = np.array([[1, 0, 1], [0, 1, 1]])  # Wrong number of columns
         
-        with pytest.raises(ValueError, match="Boundary matrix must have 2 rows"):
+        with pytest.raises(ValueError, match="Boundary matrix must have 2 columns"):
             ChainGroup(
                 dimension=1,
                 generators=generators,
@@ -105,7 +109,7 @@ class TestChainComplex:
                     1: ChainGroup(
                         dimension=1,
                         generators=["e1"],
-                        boundary_matrix=np.array([[1, 0]])  # Wrong dimensions
+                        boundary_matrix=np.array([[1], [0], [1]])  # Wrong dimensions: 3x1 instead of 2x1
                     )
                 }
             )
@@ -183,7 +187,7 @@ class TestChainComplex:
                 "1": {
                     "dimension": 1,
                     "generators": ["e1"],
-                    "boundary_matrix": [[1]]
+                    "boundary_matrix": [[1], [0]]  # 2x1 matrix: maps 1 generator to 2 generators
                 }
             }
         }
@@ -213,7 +217,8 @@ class TestMathematicalProperties:
     
     def test_boundary_condition(self):
         """Test that ∂_{n-1} ∘ ∂_n = 0 for all n."""
-        # Create a valid chain complex
+        # Create a valid chain complex that satisfies d²=0
+        # We need d₁∘d₂ = 0, so d₂ should map to the kernel of d₁
         cc = ChainComplex(
             groups={
                 0: ChainGroup(
@@ -224,12 +229,12 @@ class TestMathematicalProperties:
                 1: ChainGroup(
                     dimension=1,
                     generators=["e1"],
-                    boundary_matrix=np.array([[1, 0]])
+                    boundary_matrix=np.array([[1], [-1]])  # 2x1: maps 1 generator to 2 generators
                 ),
                 2: ChainGroup(
                     dimension=2,
                     generators=["f1"],
-                    boundary_matrix=np.array([[1]])
+                    boundary_matrix=np.array([[0]])  # 1x1: maps 1 generator to 0 (trivial map)
                 )
             }
         )

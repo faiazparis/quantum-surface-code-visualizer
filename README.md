@@ -2,7 +2,7 @@
 
 > **We provide a solid mathematical foundation; users bring their own data (JSON chain complexes). We invite contributions to reach rigorous standards!**
 
-A Python framework for prototyping and analyzing surface code layouts via algebraic topology and quantum error correction, built on rigorous mathematical and physical foundations. **This is a working foundation with clear limitations - we invite contributors to help us reach our goals.**
+A Python framework for prototyping and analyzing surface code layouts via algebraic topology and quantum error correction, built on rigorous mathematical and physical foundations. **This is a working foundation with clear limitations - we invite contributors to help us reach our goals. Current implementation covers core mathematical validation.**
 
 
 
