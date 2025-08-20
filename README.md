@@ -4,26 +4,7 @@
 
 A Python framework for prototyping and analyzing surface code layouts via algebraic topology and quantum error correction, built on rigorous mathematical and physical foundations. **This is a working foundation with clear limitations - we invite contributors to help us reach our goals.**
 
-## 📊 **CURRENT STATUS: What We Have vs. What's Next**
 
-### ✅ **What We HAVE (Ready to Use):**
-- **Chain Complex Validation**: d² = 0 condition checking and structure validation
-- **Basic Homology Computation**: H₀, H₁, H₂ groups using Smith Normal Form
-- **JSON Data Loading**: Schema validation and chain complex construction
-- **Basic Testing Framework**: Comprehensive test roadmap with initial implementations
-- **Project Architecture**: Well-structured, extensible codebase
-
-### 🚧 **What's NEXT (Development Priorities):**
-- **Surface Code Analysis**: Basic structure exists, needs advanced features
-- **Decoder Framework**: Skeleton classes exist, need actual algorithm implementations
-- **Visualization Tools**: Basic plotting framework, needs interactive features
-
-### ❌ **What Should Be Done (Contribution Opportunities):**
-- **Physical Validation**: No experimental data comparison or threshold analysis
-- **Advanced Mathematics**: Missing chain maps, cohomology, topological invariants
-- **Performance Benchmarks**: No scalability analysis or memory usage data
-- **Real-time Decoding**: No actual working decoders with performance validation
-- **Error Models**: No comprehensive error models matching experimental data
 
 ## 🌍 Real-World Applications
 
@@ -61,6 +42,27 @@ The ChainComplex Surface Code Visualizer provides a foundation for researchers a
 - **Build Autonomous Systems**: Enable robots and self-driving cars to navigate complex environments safely
 - **Model Financial Systems**: Identify hidden patterns in market data for better risk management
 - **Study Climate Dynamics**: Analyze the topological structure of weather and ocean systems
+
+## 📊 **CURRENT STATUS: What We Have vs. What's Next**
+
+### ✅ **What We HAVE (Ready to Use):**
+- **Chain Complex Validation**: d² = 0 condition checking and structure validation
+- **Basic Homology Computation**: H₀, H₁, H₂ groups using Smith Normal Form
+- **JSON Data Loading**: Schema validation and chain complex construction
+- **Basic Testing Framework**: Comprehensive test roadmap with initial implementations
+- **Project Architecture**: Well-structured, extensible codebase
+
+### 🚧 **What's NEXT (Development Priorities):**
+- **Surface Code Analysis**: Basic structure exists, needs advanced features
+- **Decoder Framework**: Skeleton classes exist, need actual algorithm implementations
+- **Visualization Tools**: Basic plotting framework, needs interactive features
+
+### ❌ **What Should Be Done (Contribution Opportunities):**
+- **Physical Validation**: No experimental data comparison or threshold analysis
+- **Advanced Mathematics**: Missing chain maps, cohomology, topological invariants
+- **Performance Benchmarks**: No scalability analysis or memory usage data
+- **Real-time Decoding**: No actual working decoders with performance validation
+- **Error Models**: No comprehensive error models matching experimental data
 
 ## 🚀 Quickstart
 

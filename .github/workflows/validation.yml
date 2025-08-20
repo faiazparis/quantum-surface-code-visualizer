@@ -74,7 +74,7 @@ jobs:
         pytest tests/test_homology.py::TestHomologyCalculator::test_torus_chain_complex -v --tb=short
         
         echo "Testing d² = 0 validation..."
-        pytest tests/test_chain_complex.py::TestChainComplex::test_d_squared_zero_validation -v --tb=short
+        pytest tests/test_homology.py::TestHomologyCalculator::test_d_squared_zero_validation -v --tb=short
         
         echo "✓ Critical mathematical tests passed"
         
