@@ -191,13 +191,15 @@ class TestHomologyCalculator:
         """Test homology of S^2 (sphere) using small cell complex."""
         # Create sphere chain complex (simplified)
         # This represents a sphere with 4 vertices, 6 edges, 4 faces
+        from ccscv.chain_complex import ChainGroup
+        
         chain_complex = ChainComplex(
             name="Sphere S^2",
             grading=[0, 1, 2],
             chains={
-                "0": {"basis": ["v1", "v2", "v3", "v4"], "ring": "Z"},
-                "1": {"basis": ["e1", "e2", "e3", "e4", "e5", "e6"], "ring": "Z"},
-                "2": {"basis": ["f1", "f2", "f3", "f4"], "ring": "Z"}
+                "0": ChainGroup(basis=["v1", "v2", "v3", "v4"], ring="Z"),
+                "1": ChainGroup(basis=["e1", "e2", "e3", "e4", "e5", "e6"], ring="Z"),
+                "2": ChainGroup(basis=["f1", "f2", "f3", "f4"], ring="Z")
             },
             differentials={
                 "1": np.array([
@@ -241,14 +243,16 @@ class TestHomologyCalculator:
         """Test homology of T^2 (torus) using small cell complex."""
         # Create torus chain complex (simplified)
         # This represents a torus with 9 vertices, 18 edges, 9 faces
+        from ccscv.chain_complex import ChainGroup
+        
         chain_complex = ChainComplex(
             name="Torus T^2",
             grading=[0, 1, 2],
             chains={
-                "0": {"basis": ["v1", "v2", "v3", "v4", "v5", "v6", "v7", "v8", "v9"], "ring": "Z"},
-                "1": {"basis": ["e1", "e2", "e3", "e4", "e5", "e6", "e7", "e8", "e9", 
-                                "e10", "e11", "e12", "e13", "e14", "e15", "e16", "e17", "e18"], "ring": "Z"},
-                "2": {"basis": ["f1", "f2", "f3", "f4", "f5", "f6", "f7", "f8", "f9"], "ring": "Z"}
+                "0": ChainGroup(basis=["v1", "v2", "v3", "v4", "v5", "v6", "v7", "v8", "v9"], ring="Z"),
+                "1": ChainGroup(basis=["e1", "e2", "e3", "e4", "e5", "e6", "e7", "e8", "e9", 
+                                "e10", "e11", "e12", "e13", "e14", "e15", "e16", "e17", "e18"], ring="Z"),
+                "2": ChainGroup(basis=["f1", "f2", "f3", "f4", "f5", "f6", "f7", "f8", "f9"], ring="Z")
             },
             differentials={
                 "1": np.array([
