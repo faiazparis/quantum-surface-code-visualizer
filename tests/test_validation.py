@@ -133,19 +133,19 @@ class TestCriticalMathematicalValidation:
         calculator = HomologyCalculator(chain_complex)
         
         # Test H₀(T2) = ℤ
-h0 = calculator.homology(0)
-assert h0.free_rank == 1, f"Expected H₀(T2) = ℤ, got rank {h0.free_rank}"
-assert len(h0.torsion) == 0, f"Expected no torsion in H₀(T2), got {h0.torsion}"
+        h0 = calculator.homology(0)
+        assert h0.free_rank == 1, f"Expected H₀(T2) = ℤ, got rank {h0.free_rank}"
+        assert len(h0.torsion) == 0, f"Expected no torsion in H₀(T2), got {h0.torsion}"
 
-# Test H₁(T2) = ℤ²
-h1 = calculator.homology(1)
-assert h1.free_rank == 2, f"Expected H₁(T2) = ℤ², got rank {h1.free_rank}"
-assert len(h1.torsion) == 0, f"Expected no torsion in H₁(T2), got {h1.torsion}"
+        # Test H₁(T2) = ℤ²
+        h1 = calculator.homology(1)
+        assert h1.free_rank == 2, f"Expected H₁(T2) = ℤ², got rank {h1.free_rank}"
+        assert len(h1.torsion) == 0, f"Expected no torsion in H₁(T2), got {h1.torsion}"
 
-# Test H₂(T2) = ℤ
-h2 = calculator.homology(2)
-assert h2.free_rank == 1, f"Expected H₂(T2) = ℤ, got rank {h2.free_rank}"
-assert len(h2.torsion) == 0, f"Expected no torsion in H₂(T2), got {h2.torsion}"
+        # Test H₂(T2) = ℤ
+        h2 = calculator.homology(2)
+        assert h2.free_rank == 1, f"Expected H₂(T2) = ℤ, got rank {h2.free_rank}"
+        assert len(h2.torsion) == 0, f"Expected no torsion in H₂(T2), got {h2.torsion}"
         
         # Test Euler characteristic χ = 0
         euler_char = calculator.get_euler_characteristic()

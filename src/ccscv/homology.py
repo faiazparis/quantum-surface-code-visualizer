@@ -8,8 +8,7 @@ using Smith normal form (SNF) for exact integer computations.
 
 from typing import Dict, List, Optional, Tuple, Union, Any
 import numpy as np
-from numpy.typing import NDArray
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from .chain_complex import ChainComplex
 import sympy as sp
 
@@ -17,28 +16,26 @@ import sympy as sp
 class HomologyGroup(BaseModel):
     """Represents a homology group H_n(C) = ker(d_n) / im(d_{n+1})."""
     
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+    
     dimension: int = Field(..., description="Dimension of the homology group")
     rank: int = Field(..., description="Rank (Betti number) of the homology group")
-    generators: NDArray = Field(..., description="Basis for the homology group")
+    generators: np.ndarray = Field(..., description="Basis for the homology group")
     torsion: Optional[List[int]] = Field(None, description="Torsion coefficients if any")
-    
-    class Config:
-        arbitrary_types_allowed = True
 
 
 class HomologyResult(BaseModel):
     """Structured result for homology computation."""
     
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+    
     dimension: int = Field(..., description="Dimension of the homology group")
     free_rank: int = Field(..., description="Free rank (Betti number)")
     torsion: List[Tuple[int, int]] = Field(..., description="Torsion: [(prime, power), ...]")
     generators_metadata: Dict[str, Any] = Field(..., description="Additional generator information")
-    
-    class Config:
-        arbitrary_types_allowed = True
 
 
-def smith_normal_form(A: NDArray) -> Tuple[NDArray, NDArray, NDArray]:
+def smith_normal_form(A: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Compute the Smith normal form of a matrix A over the integers.
     
@@ -66,7 +63,7 @@ def smith_normal_form(A: NDArray) -> Tuple[NDArray, NDArray, NDArray]:
     return D_np, P_np, Q_np
 
 
-def kernel_rank(A: NDArray) -> int:
+def kernel_rank(A: np.ndarray) -> int:
     """
     Compute the rank of the kernel of matrix A using Smith normal form.
     
@@ -90,7 +87,7 @@ def kernel_rank(A: NDArray) -> int:
     return kernel_rank
 
 
-def image_rank(A: NDArray) -> int:
+def image_rank(A: np.ndarray) -> int:
     """
     Compute the rank of the image of matrix A using Smith normal form.
     
@@ -114,7 +111,7 @@ def image_rank(A: NDArray) -> int:
     return image_rank
 
 
-def torsion_invariants(D: NDArray) -> List[Tuple[int, int]]:
+def torsion_invariants(D: np.ndarray) -> List[Tuple[int, int]]:
     """
     Extract torsion invariants from the diagonal of Smith normal form.
     

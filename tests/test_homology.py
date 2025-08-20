@@ -202,8 +202,8 @@ class TestHomologyCalculator:
                 "2": ChainGroup(basis=["f"], ring="Z")
             },
             differentials={
-                "1": np.array([], dtype=int).reshape(1, 0),  # Empty matrix: 1×0
-                "2": np.array([], dtype=int).reshape(0, 1)   # Empty matrix: 0×1
+                "1": np.zeros((1, 0), dtype=int),  # Empty matrix: 1×0
+                "2": np.zeros((0, 1), dtype=int)   # Empty matrix: 0×1
             },
             metadata={
                 "version": "1.0.0", 
@@ -246,8 +246,8 @@ class TestHomologyCalculator:
                 "2": ChainGroup(basis=["f"], ring="Z")
             },
             differentials={
-                "1": np.array([[0], [0]], dtype=int),  # ∂1 = 0: both loops start/end at v
-                "2": np.array([[0, 0]], dtype=int)      # ∂2 = 0: abelianization of aba^{-1}b^{-1}
+                "1": np.zeros((1, 2), dtype=int),  # ∂1 = 0: both loops start/end at v
+                "2": np.zeros((2, 1), dtype=int)   # ∂2 = 0: abelianization of aba^{-1}b^{-1}
             },
             metadata={
                 "version": "1.0.0", 

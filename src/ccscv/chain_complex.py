@@ -8,8 +8,7 @@ using Smith normal form (SNF) for exact homology calculations.
 
 from typing import Dict, List, Optional, Tuple, Union, Any
 import numpy as np
-from numpy.typing import NDArray
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 import json
 import sympy as sp
 
@@ -17,10 +16,13 @@ import sympy as sp
 class ChainGroup(BaseModel):
     """Represents a single chain group in a chain complex."""
     
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+    
     basis: List[str] = Field(..., description="Basis elements for this chain group")
     ring: str = Field(..., description="Ring over which the chain group is defined")
     
-    @validator('basis')
+    @field_validator('basis')
+    @classmethod
     def validate_basis(cls, v):
         """Validate that basis elements are unique and non-empty."""
         if not v:
@@ -29,7 +31,8 @@ class ChainGroup(BaseModel):
             raise ValueError("Basis elements must be unique")
         return v
     
-    @validator('ring')
+    @field_validator('ring')
+    @classmethod
     def validate_ring(cls, v):
         """Validate ring specification."""
         if v not in ["Z", "Z_p"]:
@@ -63,14 +66,17 @@ class ChainComplex(BaseModel):
     homology computations, avoiding numerical errors from floating-point arithmetic.
     """
     
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+    
     name: str = Field(..., description="Name or identifier for the chain complex")
     grading: List[int] = Field(..., description="Dimensions where chain groups exist")
     chains: Dict[str, ChainGroup] = Field(..., description="Chain groups keyed by degree")
-    differentials: Dict[str, NDArray] = Field(..., description="Differential operators keyed by degree")
+    differentials: Dict[str, np.ndarray] = Field(..., description="Differential operators keyed by degree")
     metadata: Dict[str, Any] = Field(..., description="Metadata about the chain complex")
     qec_overlays: Optional[Dict[str, Any]] = Field(None, description="Optional QEC-specific data")
     
-    @validator('grading')
+    @field_validator('grading')
+    @classmethod
     def validate_grading(cls, v):
         """Validate that grading is non-empty and contains unique integers."""
         if not v:
@@ -79,55 +85,40 @@ class ChainComplex(BaseModel):
             raise ValueError("Grading dimensions must be unique")
         return sorted(v)
     
-    @validator('chains')
-    def validate_chains(cls, v, values):
-        """Validate that chains match the grading."""
-        if 'grading' in values:
-            grading = values['grading']
-            chain_keys = set(int(k) for k in v.keys())
-            if set(grading) != chain_keys:
-                raise ValueError("Chain groups must exist for all grading dimensions")
+    @field_validator('differentials')
+    @classmethod
+    def validate_differentials(cls, v):
+        """Validate differential operators and ensure they are numpy arrays with integer dtype."""
+        # Convert to numpy arrays and ensure integer dtype
+        for degree_str, diff_matrix in v.items():
+            if not isinstance(diff_matrix, np.ndarray):
+                v[degree_str] = np.asarray(diff_matrix, dtype=int)
+            elif not np.issubdtype(diff_matrix.dtype, np.integer):
+                v[degree_str] = diff_matrix.astype(int)
         return v
     
-    @validator('differentials')
-    def validate_differentials(cls, v, values):
-        """Validate differential operators and check d²=0 condition."""
-        if 'chains' in values and 'grading' in values:
-            chains = values['chains']
-            grading = values['grading']
-            
-            # Check that differential keys match expected degrees
-            diff_keys = set(int(k) for k in v.keys())
-            expected_diffs = set(grading[1:])  # All except 0 (no differential from 0)
-            if diff_keys != expected_diffs:
-                raise ValueError(f"Differentials must exist for degrees {expected_diffs}")
-            
-            # Validate matrix dimensions
-            for degree_str, diff_matrix in v.items():
-                degree = int(degree_str)
-                if degree not in grading:
-                    continue
-                
-                # Matrix should map from degree to degree-1
-                if degree - 1 not in grading:
-                    continue
-                
-                source_dim = len(chains[str(degree)].basis)
-                target_dim = len(chains[str(degree - 1)].basis)
-                
-                if diff_matrix.shape != (target_dim, source_dim):
-                    raise ValueError(
-                        f"Differential d_{degree} should have shape ({target_dim}, {source_dim}), "
-                        f"got {diff_matrix.shape}"
-                    )
-            
-            # Check d²=0 condition
-            cls._validate_d_squared_zero(v, grading)
+    def model_post_init(self, __context: Any) -> None:
+        """Validate mathematical properties after model initialization."""
+        # Check d²=0 condition
+        self._validate_d_squared_zero(self.differentials, self.grading)
         
-        return v
+        # Validate matrix dimensions
+        for degree_str, diff_matrix in self.differentials.items():
+            degree = int(degree_str)
+            if degree not in self.grading or degree - 1 not in self.grading:
+                continue
+            
+            source_dim = len(self.chains[str(degree)].basis)
+            target_dim = len(self.chains[str(degree - 1)].basis)
+            
+            if diff_matrix.shape != (target_dim, source_dim):
+                raise ValueError(
+                    f"Differential d_{degree} should have shape ({target_dim}, {source_dim}), "
+                    f"got {diff_matrix.shape}"
+                )
     
     @classmethod
-    def _validate_d_squared_zero(cls, differentials: Dict[str, NDArray], grading: List[int]):
+    def _validate_d_squared_zero(cls, differentials: Dict[str, np.ndarray], grading: List[int]):
         """Validate the fundamental d²=0 condition."""
         for n in grading[2:]:  # Start from degree 2
             if str(n) in differentials and str(n-1) in differentials:
@@ -200,7 +191,7 @@ class ChainComplex(BaseModel):
         """Get the chain group at a specific dimension."""
         return self.chains.get(str(dimension))
     
-    def get_boundary_operator(self, dimension: int) -> Optional[NDArray]:
+    def get_boundary_operator(self, dimension: int) -> Optional[np.ndarray]:
         """Get the boundary operator at a specific dimension."""
         return self.differentials.get(str(dimension))
     
@@ -249,7 +240,7 @@ class ChainComplex(BaseModel):
         # For now, we just verify d²=0 which is necessary but not sufficient
         return True  # Will be validated in constructor
     
-    def compute_kernel(self, dimension: int) -> NDArray:
+    def compute_kernel(self, dimension: int) -> np.ndarray:
         """
         Compute the kernel of the differential operator at a given dimension.
         
@@ -271,7 +262,7 @@ class ChainComplex(BaseModel):
         
         return kernel_basis
     
-    def compute_image(self, dimension: int) -> NDArray:
+    def compute_image(self, dimension: int) -> np.ndarray:
         """
         Compute the image of the differential operator at a given dimension.
         
