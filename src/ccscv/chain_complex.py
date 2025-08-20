@@ -100,7 +100,7 @@ class ChainComplex(BaseModel):
     def model_post_init(self, __context: Any) -> None:
         """Validate mathematical properties after model initialization."""
         # Check d²=0 condition
-        self._validate_d_squared_zero(self.differentials, self.grading)
+        self._validate_d_squared_zero()
         
         # Validate matrix dimensions
         for degree_str, diff_matrix in self.differentials.items():
@@ -117,23 +117,40 @@ class ChainComplex(BaseModel):
                     f"got {diff_matrix.shape}"
                 )
     
-    @classmethod
-    def _validate_d_squared_zero(cls, differentials: Dict[str, np.ndarray], grading: List[int]):
-        """Validate the fundamental d²=0 condition."""
-        for n in grading[2:]:  # Start from degree 2
-            if str(n) in differentials and str(n-1) in differentials:
-                d_n = differentials[str(n)]
-                d_n_minus_1 = differentials[str(n-1)]
-                
-                # Compute d_{n-1} ∘ d_n
-                composition = d_n_minus_1 @ d_n
-                
-                # Check if composition is zero (allowing for small numerical errors)
-                if not np.allclose(composition, 0, atol=1e-10):
-                    raise ValueError(
-                        f"Fundamental condition d²=0 violated: "
-                        f"d_{n-1} ∘ d_{n} ≠ 0 at degree {n}"
-                    )
+    def _dim(self, group):
+        """Get dimension of a chain group."""
+        return 0 if group is None else len(group.basis)
+    
+    def _as_int_array(self, M, shape):
+        """Convert matrix to integer array with specified shape."""
+        if M is None:
+            return np.zeros(shape, dtype=int)
+        A = np.asarray(M)
+        if A.size == 0:
+            A = np.zeros(shape, dtype=int)
+        if A.dtype.kind not in ("i", "u"):
+            A = A.astype(int, copy=False)
+        if A.shape != shape:
+            # reshape only if one dimension is zero and sizes match trivially; otherwise error
+            raise ValueError(f"Boundary matrix has shape {A.shape}, expected {shape}")
+        return A
+    
+    def _validate_d_squared_zero(self):
+        """Validate the fundamental d²=0 condition with proper shape handling."""
+        degrees = sorted(self.grading)
+        for k in degrees:
+            m = self._dim(self.chains.get(str(k-1)))
+            n = self._dim(self.chains.get(str(k)))
+            p = self._dim(self.chains.get(str(k+1)))
+            
+            # Get differentials with proper shapes
+            Dk = self._as_int_array(self.differentials.get(str(k)), (m, n))
+            Dkplus = self._as_int_array(self.differentials.get(str(k+1)), (n, p))
+            
+            # Check d²=0: d_k ∘ d_{k+1} = 0
+            comp = Dk @ Dkplus  # shapes guaranteed to match
+            if np.any(comp):
+                raise ValueError(f"Fundamental condition d²=0 violated at degrees {k},{k+1}: d_{k}∘d_{k+1} ≠ 0")
     
     def validate(self) -> Dict[str, bool]:
         """
