@@ -7,7 +7,7 @@ against established mathematical principles.
 
 import pytest
 import numpy as np
-from src.ccscv.chain_complex import ChainComplex, ChainGroup
+from ccscv.chain_complex import ChainComplex, ChainGroup
 
 
 class TestChainGroup:
