@@ -56,33 +56,48 @@ def smith_normal_form(A: np.ndarray) -> Tuple[np.ndarray, Optional[np.ndarray], 
         Tuple (S, U, V) where S is the Smith normal form, U and V are transformation matrices
         (U and V may be None for older SymPy versions)
     """
-    # Ensure integer dtype
     A = np.asarray(A, dtype=int)
-    
-    # Convert numpy array to sympy matrix
-    A_sympy = Matrix(A.tolist())
-    
+    m, n = A.shape
+    A_sym = Matrix(A.tolist())
+
+    # Handle empty shapes explicitly
+    if m == 0 or n == 0:
+        S = Matrix.zeros(m, n)
+        S_np = np.array(S.tolist(), dtype=int)
+        return S_np, None, None
+
     if snf_func is not None:
-        # Functional API: returns (S, U, V)
-        S, U, V = snf_func(A_sympy)
+        res = snf_func(A_sym)
+        # Normalize outputs across SymPy versions
+        if isinstance(res, tuple):
+            if len(res) == 3:
+                S, U, V = res
+            elif len(res) == 1:
+                S, = res
+                U = V = None
+            else:
+                # Unexpected arity; treat as S only
+                S = res
+                U = V = None
+        else:
+            # Some versions return just S
+            S, U, V = res, None, None
+        
         # Convert back to numpy arrays
         S_np = np.array(S.tolist(), dtype=int)
         U_np = np.array(U.tolist(), dtype=int) if U is not None else None
         V_np = np.array(V.tolist(), dtype=int) if V is not None else None
         return S_np, U_np, V_np
-    else:
-        # Fallback for very old SymPy lacking normalforms.smith_normal_form
-        # Use invariant_factors to build S
-        inv = A_sympy.invariant_factors()
-        # Build diagonal S with invariant factors; pad to matrix size
-        m, n = A_sympy.shape
-        S = Matrix.zeros(m, n)
-        for i, d in enumerate(inv):
-            S[i, i] = d
-        # Convert to numpy and return
-        S_np = np.array(S.tolist(), dtype=int)
-        # No unimodular matrices available; return placeholders
-        return S_np, None, None
+
+    # Fallback: build S from invariant factors
+    inv = A_sym.invariant_factors()
+    S = Matrix.zeros(m, n)
+    for i, d in enumerate(inv):
+        S[i, i] = d
+    # Convert to numpy and return
+    S_np = np.array(S.tolist(), dtype=int)
+    # No unimodular matrices available; return placeholders
+    return S_np, None, None
 
 
 def kernel_rank(A: np.ndarray) -> int:
